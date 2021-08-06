@@ -1,0 +1,1316 @@
+---
+title: "Input time series generation for the WASA model"
+author: "Paolo Colombo"
+date: "3/5/2021"
+output: html_document
+---
+
+# Libraries
+
+```{r libraries}
+setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis")
+
+source("Libraries.R")
+source("Functions.R")
+```
+
+# Precipitation
+
+## Upload precipitation data
+
+```{r precipitation upload}
+setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/meteorological_stations_ceara")
+
+#FUNCEME dataset
+input<-list.files(path="./Meteorological_stations_FUNCEME/precipitation_subset",full.names = T,recursive = TRUE)
+
+prec_input<-list()
+for(i in 1:length(input)){
+  tryCatch(prec_input[[i]]<-read.table(input[i],header = FALSE,
+                              sep = "",col.names = c("year","month","day","data"),
+                              skip=6),
+           error=function(e){cat("ERROR :",conditionMessage(e),i, "\n")})
+}
+```
+
+## Set up the main dataframe
+
+Creation of the position vector (positions_prec) and the main dataframe containing all the data from the meteorological stations (main_dataframe_prec).
+
+```{r precipitation dataframe}
+#Positions vector
+for(i in 1:length(input)){
+  lines<-readLines(input[i],n = 6)
+  ID<-as.numeric(unlist(strsplit(lines[1], ":"))[2])
+  name<-unlist(strsplit(lines[2], ":"))[2]
+  long<-as.numeric(unlist(strsplit(lines[5], ":"))[2])
+  lat<-as.numeric(unlist(strsplit(lines[6], ":"))[2])
+  p<-data.frame(ID,name,long,lat)
+  if(i > 1) positions_prec<-rbind(positions_prec,p,make.row.names=FALSE)
+  else positions_prec<-p
+}
+positions_prec$ID<-paste0("St",positions_prec$ID)
+
+#Unified dataframe
+
+start_y <- 1980
+end_y <- 2020
+start_m <- 01
+end_m <- 12
+
+start<-paste0("01/0",start_m,"/",start_y)
+end<-paste0("31/",end_m,"/",end_y)
+date<-seq(as.Date(start,"%d/%m/%Y"), as.Date(end,"%d/%m/%Y"), by="days")
+
+##Create a date column inside each station dataframe
+for(i in 1:length(prec_input[])){
+  d<-as.Date(paste0(prec_input[[i]]$year,"-",prec_input[[i]]$month,"-",prec_input[[i]]$day))
+  prec_input[[i]]$date<-d
+}
+
+tic("Unified dataframe - Optimized")
+main_dataframe_prec<-data.frame(date)
+index<-matrix(NA,ncol = 2,nrow = 744)
+j<-1
+
+for(i in 1:length(prec_input[])){
+  check<-prec_input[[i]][which(prec_input[[i]]$date %in% main_dataframe_prec$date),]
+  if(dim(check)[1]!=0){
+      #main_dataframe_prec$new<-rep(NA,nrow(main_dataframe_prec))
+      new_v<-sistemadati(vettore = prec_input[[i]],lung = nrow(main_dataframe_prec),g = date)
+      main_dataframe_prec$new<-new_v[,2]
+      names(main_dataframe_prec)[names(main_dataframe_prec) == "new"]<-positions_prec$ID[i]
+  }else{
+      index[j,1]<-i
+      index[j,2]<-positions_prec$ID[i]
+      j<-j+1
+  }
+}
+index_clean<-subset(index, (!is.na(index[,1])) & (!is.na(index[,2])))
+toc()
+#519.94 sec = 8.65 min
+#818.79 sec
+
+remove(index,j,new_v)
+View(index_clean) #Stations with no observations
+
+path <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/main_datasets"
+write.table(main_dataframe_prec,paste0(path,"/main_dataframe_precipitation_3005.txt"),
+            quote=FALSE,sep="\t",row.names = FALSE)
+
+```
+
+## Interpolation
+
+```{r precipitation interpolation}
+#Upload the main dataframe of precipitation data
+# path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/main_datasets"
+# main_dataframe_prec<-read.table(paste0(path,"/main_dataframe_precipitation_opt_v2.txt"),
+#                                 header = TRUE, sep="\t")
+
+#Import of the subbasins shapefile
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/shapefile/streamgauges"
+subbasins<-readOGR(paste0(path,"/Subbasins_geomfix.shp"))
+
+#Output dataframe creation
+tic("Output generation - Precipitation - With function")
+output_prec<-create_time_series(main_dataframe = main_dataframe_prec,
+                                positions = positions_prec,
+                                layer = subbasins,
+                                dates = date)
+toc()
+
+#7335.77 sec = 2 h
+#6608.21 sec
+#With new create_time_series function
+#
+```
+
+```{r check the interpolation procedure}
+#Export the generated files to visualize them on QGIS
+#Only useful while set upping the interpolation algorithm
+
+shape<-data.frame(t(second),
+                      positions_prec$long[which(positions_prec$ID %in% col)],
+                      positions_prec$lat[which(positions_prec$ID %in% col)],
+                      positions_prec$ID[which(positions_prec$ID %in% col)])
+    names(shape)<-c("data","long","lat","ID")
+
+coordinates(shape)<-c("long","lat")
+proj4string(shape)<-CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+shape <- spTransform(shape, raster::crs(subbasins))
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/meteorological_stations_ceara/Meteorological_stations_FUNCEME/prove_shape"
+#raster::shapefile(shape,paste0(path,"/stazioni_temp_conID.shp"))
+
+try<-data_sub
+coordinates(try)<-c("x","y")
+coordinates(try)<-c("long","lat")
+proj4string(try)<-CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+try <- spTransform(try, raster::crs(subbasins))
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/meteorological_stations_ceara/Meteorological_stations_FUNCEME/prove_shape"
+#raster::shapefile(try,paste0(path,"/subbasins_con_prec_prova2.shp"),overwrite=TRUE)
+
+#raster::shapefile(thiessen,paste0(path,"/thiessen_temp_new.shp"),overwrite=TRUE)  
+
+```
+
+### Output dataframe creation and export
+
+```{r precipitation output}
+#Insert the date
+year<-lubridate::year(main_dataframe_prec$date)
+month<-lubridate::month(main_dataframe_prec$date)
+month[which(month < 10)]<-paste0("0",month[which(month < 10)])
+day<-lubridate::day(main_dataframe_prec$date)
+day[which(day < 10)]<-paste0("0",day[which(day < 10)])
+
+output_prec$date<-paste0(day,month,year)
+
+#Insert the number of days
+output_prec$`number of days`<-lubridate::yday(main_dataframe_prec$date)
+
+#Round the values
+output_exp<-output_prec
+output_exp[,3:ncol(output_exp)]<-round(output_exp[,3:ncol(output_exp)], digits = 1)
+
+#Export as an Input file for WASA
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/output_time_series_gen"
+
+my.write(output_exp,file=paste0(path,"/rain_daily_3005.dat"),
+         header = "Daily average precipitation [mmd] for each subasin, ordered according Map-IDs/nDate No. of days Subasin-ID/n0 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 163 164 165 166 167 168 169 170 171 172 173 174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189 190 191 192 193 194 195 196 197 198 199 200 201 202 203 204 205 206 207 208 209 210 211 212 213 214 215",f = write.table,sepset = FALSE)
+
+#Save it as it is for future use
+write.table(output_prec,paste0(path,"/output_prec_save_3005.txt"),quote = FALSE,sep="\t",row.names = FALSE)
+```
+
+# Temperature
+
+## Upload temperature data
+
+Since FUNCEME stations present numerous days without temperature data, here INMET stations are also considered. This guarantees at least one observation for each year.
+
+```{r temperature upload}
+setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/meteorological_stations_ceara")
+
+#FUNCEME and INMET dataset
+input<-list.files(path="./Meteorological_stations_FUNCEME/t2m",full.names = T,recursive = TRUE)
+
+temp_input<-list()
+for(i in 1:length(input)){
+  tryCatch(temp_input[[i]]<-read.table(input[i],header = FALSE,
+                              sep = "",col.names = c("year","month","day","data"),
+                              skip=6),
+           error=function(e){cat("ERROR :",conditionMessage(e),i, "\n")})
+}
+```
+
+## Set up the main dataframe
+
+```{r temperature dataframe}
+#Positions vector
+for(i in 1:length(input)){
+  lines<-readLines(input[i],n = 6)
+  ID<-as.numeric(unlist(strsplit(lines[1], ":"))[2])
+  name<-unlist(strsplit(lines[2], ":"))[2]
+  long<-as.numeric(unlist(strsplit(lines[5], ":"))[2])
+  lat<-as.numeric(unlist(strsplit(lines[6], ":"))[2])
+  p<-data.frame(ID,name,long,lat)
+  if(i > 1) positions_temp<-rbind(positions_temp,p,make.row.names=FALSE)
+  else positions_temp<-p
+}
+positions_temp$ID<-paste0("St",positions_temp$ID)
+
+#Unified dataframe
+
+start_y <- 1980
+end_y <- 2020
+start_m <- 01
+end_m <- 12
+
+start<-paste0("01/0",start_m,"/",start_y)
+end<-paste0("31/",end_m,"/",end_y)
+date<-seq(as.Date(start,"%d/%m/%Y"), as.Date(end,"%d/%m/%Y"), by="days")
+
+##Create a date column inside each station dataframe
+for(i in 1:length(temp_input[])){
+  d<-as.Date(paste0(temp_input[[i]]$year,"-",temp_input[[i]]$month,"-",temp_input[[i]]$day))
+  temp_input[[i]]$date<-d
+}
+
+tic("Unified dataframe Temperature - Optimized")
+
+main_dataframe_temp<-data.frame(date)
+index<-matrix(NA,ncol = 2,nrow = 744)
+j<-1
+
+for(i in 1:length(temp_input[])){
+  check<-temp_input[[i]][which(temp_input[[i]]$date %in% main_dataframe_temp$date),]
+  if(dim(check)[1]!=0){
+      #main_dataframe_temp$new<-rep(NA,nrow(main_dataframe_temp))
+      new_v<-sistemadati(vettore = temp_input[[i]],lung = nrow(main_dataframe_temp),g = date)
+      main_dataframe_temp$new<-new_v[,2]
+      names(main_dataframe_temp)[names(main_dataframe_temp) == "new"]<-positions_temp$ID[i]
+  }else{
+      index[j,1]<-i
+      index[j,2]<-positions_temp$ID[i]
+      j<-j+1
+  }
+}
+index_clean<-subset(index, (!is.na(index[,1])) & (!is.na(index[,2])))
+toc() #154.5 sec = 2.575 min
+
+remove(index,j,new_v)
+View(index_clean)
+
+# path <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/main_datasets"
+# write.table(main_dataframe_temp,paste0(path,"/main_dataframe_temperature_3005.txt"),
+#            quote=FALSE,sep="\t",row.names = FALSE)
+
+```
+
+## Interpolation
+
+```{r temperature interpolation}
+# Upload the main dataframe of temperature data
+path <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/main_datasets"
+main_dataframe_temp<-read.table(paste0(path,"/main_dataframe_temperature_3005.txt"),
+                               header = TRUE, sep="\t")
+
+#Import of the subbasins shapefile
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/shapefile/Banabuiu"
+subbasins<-readOGR(paste0(path,"/subbasins_cut_geomfix.shp"))
+
+tic("Output generation - Temperature - With function")
+output_temp<-create_time_series_Wmean(main_dataframe = main_dataframe_temp,
+                                positions = positions_temp,
+                                layer = subbasins)
+toc()
+
+#Various checks
+length(sum(!is.na(main_dataframe_temp[which(lubridate::year(main_dataframe_temp$date)==1986),])))
+length(main_dataframe_temp[which(is.na(lubridate::year(main_dataframe_temp$date)==1986)),])
+
+#2610.95 sec = 43 min
+#3017.68 sec = 50 min
+#2716.2  sec = 45 min
+#3682.45 sec
+```
+
+### Output dataframe creation and export
+
+```{r temperature output}
+#Insert the date
+year<-lubridate::year(main_dataframe_temp$date)
+month<-lubridate::month(main_dataframe_temp$date)
+month[which(month < 10)]<-paste0("0",month[which(month < 10)])
+day<-lubridate::day(main_dataframe_temp$date)
+day[which(day < 10)]<-paste0("0",day[which(day < 10)])
+
+output_temp$date<-paste0(day,month,year)
+
+#Insert the number of days
+output_temp$`number of days`<-lubridate::yday(main_dataframe_temp$date)
+
+#Round the values
+output_exp<-output_temp
+output_exp[,3:ncol(output_exp)]<-round(output_exp[,3:ncol(output_exp)], digits = 1)
+
+#Export as an Input file for WASA
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/output_time_series_gen"
+
+my.write(output_exp,file=paste0(path,"/temperature_3005.dat"),
+         header = "Daily average temperature (in degree Celcius) for each subasin, ordered according to Map-IDs\nDate No. of days Subasin-ID\n0 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 163 164 165 166 167 168 169 170 171 172 173 174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189 190 191 192 193 194 195 196 197 198 199 200 201 202 203 204 205 206 207 208 209 210 211 212 213 214 215",f = write.table,sepset = FALSE)
+
+#Save it as it is for future use
+write.table(output_temp,paste0(path,"/output_temp_save_3005.txt"),quote = FALSE,sep="\t",row.names = FALSE)
+
+```
+
+# Humidity
+
+## Upload humidity data
+
+Both FUNCEME and INMET dataset are uploaded. Only the stations named "air_humidity" are considered, to avoid duplicated stations.
+
+```{r humidity upload}
+setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/meteorological_stations_ceara")
+
+#FUNCEME and INMET dataset
+input<-list.files(path="./Meteorological_stations_FUNCEME/humidity_subset",full.names = T,recursive = TRUE)
+
+hum_input<-list()
+for(i in 1:length(input)){
+  tryCatch(hum_input[[i]]<-read.table(input[i],header = FALSE,
+                              sep = "",col.names = c("year","month","day","data"),
+                              skip=6),
+           error=function(e){cat("ERROR :",conditionMessage(e),i, "\n")})
+}
+```
+
+## Set up the main dataframe
+
+```{r humidity dataframe}
+#Positions vector
+for(i in 1:length(input)){
+  lines<-readLines(input[i],n = 6)
+  ID<-as.numeric(unlist(strsplit(lines[1], ":"))[2])
+  name<-unlist(strsplit(lines[2], ":"))[2]
+  long<-as.numeric(unlist(strsplit(lines[5], ":"))[2])
+  lat<-as.numeric(unlist(strsplit(lines[6], ":"))[2])
+  p<-data.frame(ID,name,long,lat)
+  if(i > 1) positions_hum<-rbind(positions_hum,p,make.row.names=FALSE)
+  else positions_hum<-p
+}
+positions_hum$ID<-paste0("St",positions_hum$ID)
+
+#Unified dataframe
+
+start_y <- 1980
+end_y <- 2020
+start_m <- 01
+end_m <- 12
+
+start<-paste0("01/0",start_m,"/",start_y)
+end<-paste0("31/",end_m,"/",end_y)
+date<-seq(as.Date(start,"%d/%m/%Y"), as.Date(end,"%d/%m/%Y"), by="days")
+
+##Create a date column inside each station dataframe
+for(i in 1:length(hum_input[])){
+  d<-as.Date(paste0(hum_input[[i]]$year,"-",hum_input[[i]]$month,"-",hum_input[[i]]$day))
+  hum_input[[i]]$date<-d
+}
+
+tic("Unified dataframe humidity - Optimized")
+
+main_dataframe_hum<-data.frame(date)
+index<-matrix(NA,ncol = 2,nrow = 744)
+j<-1
+
+for(i in 1:length(hum_input[])){
+  check<-hum_input[[i]][which(hum_input[[i]]$date %in% main_dataframe_hum$date),]
+  if(dim(check)[1]!=0){
+      #main_dataframe_hum$new<-rep(NA,nrow(main_dataframe_hum))
+      new_v<-sistemadati(vettore = hum_input[[i]],lung = nrow(main_dataframe_hum),g = date)
+      main_dataframe_hum$new<-new_v[,2]
+      names(main_dataframe_hum)[names(main_dataframe_hum) == "new"]<-positions_hum$ID[i]
+  }else{
+      index[j,1]<-i
+      index[j,2]<-positions_hum$ID[i]
+      j<-j+1
+  }
+}
+index_clean<-subset(index, (!is.na(index[,1])) & (!is.na(index[,2])))
+toc() #277.06 sec = 4.6 min
+
+remove(index,j,new_v)
+View(index_clean)
+
+path <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/main_datasets"
+write.table(main_dataframe_hum,paste0(path,"/main_dataframe_humidity_8019.txt"),
+            quote=FALSE,sep="\t",row.names = FALSE)
+
+```
+
+## Interpolation
+
+```{r humidity interpolation}
+#Upload the main dataframe of precipitation data
+#path="C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/meteorological_stations_ceara/Meteorological_stations_FUNCEME/main_datasets"
+#main_dataframe_prec<-read.table(paste0(path,"/main_dataframe_precipitation_opt_v2.txt"),
+#                                header = TRUE, sep="\t")
+
+#Import of the subbasins shapefile
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/shapefile/streamgauges"
+subbasins<-readOGR(paste0(path,"/Subbasins_geomfix.shp"))
+
+#Output dataframe creation
+tic("Output generation - Humidity - With function")
+output_hum<-create_time_series(main_dataframe = main_dataframe_hum,
+                                positions = positions_hum,
+                                layer = subbasins,
+                                dates = date)
+toc()
+
+#1437.31 sec = 24 min
+```
+
+### Output dataframe creation and export
+
+```{r humidity output}
+#Insert the date
+year<-lubridate::year(main_dataframe_hum$date)
+month<-lubridate::month(main_dataframe_hum$date)
+month[which(month < 10)]<-paste0("0",month[which(month < 10)])
+day<-lubridate::day(main_dataframe_hum$date)
+day[which(day < 10)]<-paste0("0",day[which(day < 10)])
+
+output_hum$date<-paste0(day,month,year)
+
+#Insert the number of days
+output_hum$`number of days`<-lubridate::yday(main_dataframe_hum$date)
+
+#Round the values
+output_exp<-output_hum
+output_exp[,3:ncol(output_exp)]<-round(output_exp[,3:ncol(output_exp)], digits = 1)
+
+#Export as an Input file for WASA
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/output_time_series_gen"
+
+my.write(output_exp,file=paste0(path,"/humidity_v1.dat"),
+         header = "Daily average humidity [in %] for each subasin, ordered according to Map-IDs\nDate No. of days Subasin-ID\n0 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 163 164 165 166 167 168 169 170 171 172 173 174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189 190 191 192 193 194 195 196 197 198 199 200 201 202 203 204 205 206 207 208 209 210 211 212 213 214 215",f = write.table,sepset = FALSE)
+
+#Save it as it is for future use
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/output_time_series_gen"
+write.table(output_hum,paste0(path,"/output_hum_save_v1.txt"),quote = FALSE,sep="\t",row.names = FALSE)
+
+```
+
+# Radiation
+
+## Upload radiation data
+
+Both FUNCEME and INMET datasets are uploaded
+
+```{r radiation upload}
+setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/meteorological_stations_ceara")
+
+#FUNCEME and INMET dataset
+input<-list.files(path="./Meteorological_stations_FUNCEME/radiation_KJ_subset/FUNCEME",full.names = T,recursive = TRUE)
+
+rad_input<-list()
+for(i in 1:length(input)){
+  tryCatch(rad_input[[i]]<-read.table(input[i],header = FALSE,
+                              sep = "",col.names = c("year","month","day","data"),
+                              skip=6),
+           error=function(e){cat("ERROR :",conditionMessage(e),i, "\n")})
+}
+```
+
+## Set up the main dataframe
+
+```{r radiation dataframe}
+#Positions vector
+for(i in 1:length(input)){
+  lines<-readLines(input[i],n = 6)
+  ID<-as.numeric(unlist(strsplit(lines[1], ":"))[2])
+  name<-unlist(strsplit(lines[2], ":"))[2]
+  long<-as.numeric(unlist(strsplit(lines[5], ":"))[2])
+  lat<-as.numeric(unlist(strsplit(lines[6], ":"))[2])
+  p<-data.frame(ID,name,long,lat)
+  if(i > 1) positions_rad<-rbind(positions_rad,p,make.row.names=FALSE)
+  else positions_rad<-p
+}
+positions_rad$ID<-paste0("St",positions_rad$ID)
+
+#Unified dataframe
+
+start_y <- 1980
+end_y <- 2020
+start_m <- 01
+end_m <- 12
+
+start<-paste0("01/0",start_m,"/",start_y)
+end<-paste0("31/",end_m,"/",end_y)
+date<-seq(as.Date(start,"%d/%m/%Y"), as.Date(end,"%d/%m/%Y"), by="days")
+
+##Create a date column inside each station dataframe
+for(i in 1:length(rad_input[])){
+  d<-as.Date(paste0(rad_input[[i]]$year,"-",rad_input[[i]]$month,"-",rad_input[[i]]$day))
+  rad_input[[i]]$date<-d
+}
+
+tic("Unified dataframe radiation - Optimized")
+
+main_dataframe_rad<-data.frame(date)
+index<-matrix(NA,ncol = 2,nrow = 744)
+j<-1
+
+for(i in 1:length(rad_input[])){
+  check<-rad_input[[i]][which(rad_input[[i]]$date %in% main_dataframe_rad$date),]
+  if(dim(check)[1]!=0){
+      #main_dataframe_rad$new<-rep(NA,nrow(main_dataframe_rad))
+      new_v<-sistemadati(vettore = rad_input[[i]],lung = nrow(main_dataframe_rad),g = date)
+      main_dataframe_rad$new<-new_v[,2]
+      names(main_dataframe_rad)[names(main_dataframe_rad) == "new"]<-positions_rad$ID[i]
+  }else{
+      index[j,1]<-i
+      index[j,2]<-positions_rad$ID[i]
+      j<-j+1
+  }
+}
+index_clean<-subset(index, (!is.na(index[,1])) & (!is.na(index[,2])))
+toc() #519.94 sec = 8.65 min
+
+remove(index,j,new_v)
+View(index_clean)
+
+path <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/main_datasets"
+write.table(main_dataframe_rad,paste0(path,"/main_dataframe_radiation_FUNCEME.txt"),
+            quote=FALSE,sep="\t",row.names = FALSE)
+
+```
+
+## Interpolation
+
+```{r radiation interpolation}
+#Upload the main dataframe of precipitation data
+#path="C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/meteorological_stations_ceara/Meteorological_stations_FUNCEME/main_datasets"
+#main_dataframe_prec<-read.table(paste0(path,"/main_dataframe_radiation_FUNCEME.txt"),
+#                                header = TRUE, sep="\t")
+
+#Import of the subbasins shapefile
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/shapefile/Banabuiu"
+subbasins<-readOGR(paste0(path,"/subbasins_cut_geomfix.shp"))
+
+#Output dataframe creation
+#Output dataframe creation
+tic("Output generation - Radiation - Wmean")
+output_rad<-create_time_series_Wmean(main_dataframe = main_dataframe_rad,
+                                positions = positions_rad,
+                                layer = subbasins)
+toc()
+
+#1150.56 sec
+#With only Bana reservoirs:
+# - Old function: 364.34 sec
+# - New function: 586.64 sec
+```
+
+### Output dataframe creation and export
+
+ATTENTION
+For WASA, the input radiation need to be in W/m2, we have it in KJoule
+Make the transformation!
+[Here][KJ] they say to multiply the KJ by 3.6. Compare the two time series and see if by multiplying by 3.6 they are in the same range.
+
+[KJ]: https://electronics.stackexchange.com/questions/538921/how-to-convert-calculate-textkj-textm2-to-textw-textm2
+
+```{r scale change}
+#Transform from KJ to W/m2
+
+output_rad_Wm2_v1<-output_rad
+output_rad_Wm2_v1<-output_rad_Wm2_v1[,3:ncol(output_rad)]*3.6
+
+```
+
+
+```{r radiation output}
+#Insert the date
+year<-lubridate::year(main_dataframe_rad$date)
+month<-lubridate::month(main_dataframe_rad$date)
+month[which(month < 10)]<-paste0("0",month[which(month < 10)])
+day<-lubridate::day(main_dataframe_rad$date)
+day[which(day < 10)]<-paste0("0",day[which(day < 10)])
+
+output_rad$date<-paste0(day,month,year)
+
+#Insert the number of days
+output_rad$`number of days`<-lubridate::yday(main_dataframe_rad$date)
+
+#Round the values
+output_exp<-output_rad
+output_exp[,3:ncol(output_exp)]<-round(output_exp[,3:ncol(output_exp)], digits = 1)
+
+#Export as an Input file for WASA
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/output_time_series_gen"
+
+my.write(output_exp,file=paste0(path,"/radiation_v1.dat"),
+         header = "Daily average shortwave radiation [in Wm2] for each subasin, ordered according to MAP-IDs\nDate No. of days Subasin-ID\n0 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157 158 159 160 161 162 163 164 165 166 167 168 169 170 171 172 173 174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189 190 191 192 193 194 195 196 197 198 199 200 201 202 203 204 205 206 207 208 209 210 211 212 213 214 215",f = write.table,sepset = FALSE)
+
+#Save it as it is for future use
+write.table(output_rad,paste0(path,"/output_rad_v1.txt"),quote = FALSE,sep="\t",row.names = FALSE)
+```
+
+# Extraterrestrial radiation
+
+Extraterrestrial radiation has a different style compared to the other time series, and it can be obtained easily.
+
+# Comparison between generated and Alexandre's time series
+
+```{r}
+setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis")
+
+source("Libraries.R")
+source("Functions.R")
+
+#Load Banabuiu reservoirs' names and IDs
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis"
+reservoirs<-read.table(paste0(path,"/reservoir_name_ID.txt"), header = TRUE, sep = "\t")
+```
+
+## Precipitation visual comparison
+
+```{r}
+#Precipitation
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/output_time_series_gen"
+rain_gen<-read.table(paste0(path,"/output_prec_save_v2.txt"),skip = 1)
+path<-"C:/Thesis_fortran/WASA/Input/Time_series"
+rain_alex<-read.table(paste0(path,"/rain_daily.dat"),skip = 3)
+rain_gen<-rain_gen[1:11323,]
+rain_alex<-rain_alex[1:11323,] #end in 2010
+
+#Plots
+time_index<-seq(as.Date("1980-01-01"),as.Date("2010-12-31"),by="days")
+for(i in 1:nrow(reservoirs)){
+  #Creation of the dataset for the visualization
+  n<-as.numeric(reservoirs$SubbasinID[i])+2
+  visual1<-data.frame(rain_alex[,n],rep("Alexandre",length(rain_alex[,n])),time_index)
+  names(visual1)<-c("data","id","time")
+  visual2<-data.frame(rain_gen[,n],rep("Generated",length(rain_gen[,n])),time_index)
+  names(visual2)<-c("data","id","time")
+  visual<-cbind(rbind(visual1,visual2))
+  Legend<-visual$id
+  p<-ggplot(data = visual,
+            aes(x = `time`,
+                y = `data`))+
+    geom_line(aes(colour = Legend),alpha = 0.5) +
+    labs(x = "Date",
+         y = "Precipitation", 
+         title = paste0("Subbasin ",reservoirs$SubbasinID[i]," - ",reservoirs$Reservoir_name[i])) +
+    theme_ipsum()
+  print(p)
+  # path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/plots"
+  # ggsave(
+  #   filename = paste0("0517_prec_",reservoirs$SubbasinID[i],".png"),
+  #   plot = p,
+  #   device = "png",
+  #   path = path,
+  #   scale = 1,
+  #   width = NA,
+  #   height = NA,
+  #   units = c("in", "cm", "mm"),
+  #   dpi = 300,
+  #   limitsize = TRUE
+  # )
+}
+```
+
+## Temperature visual comparison
+
+```{r temperature visual comparison}
+#Temperature
+
+#Upload
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/output_time_series_gen"
+temp_gen<-read.table(paste0(path,"/output_temp_save_v3.txt"),skip = 1)
+path<-"C:/Thesis_fortran/WASA/Input/Time_series"
+temp_alex<-read.table(paste0(path,"/temperature.dat"),skip = 3)
+temp_gen<-temp_gen[1:11323,]
+temp_alex<-temp_alex[1:11323,] #end in 2010
+
+#Plots
+time_index<-seq(as.Date("1980-01-01"),as.Date("2010-12-31"),by="days")
+for(i in 1:nrow(reservoirs)){
+  #Creation of the dataset for the visualization
+  n<-as.numeric(reservoirs$SubbasinID[i])+2
+  visual1<-data.frame(temp_alex[,n],rep("Alexandre",length(temp_alex[,n])),time_index)
+  names(visual1)<-c("data","id","time")
+  visual2<-data.frame(temp_gen[,n],rep("Generated",length(temp_gen[,n])),time_index)
+  names(visual2)<-c("data","id","time")
+  visual<-cbind(rbind(visual1,visual2))
+  Legend<-visual$id
+  p<-ggplot(data = visual,
+            aes(x = `time`,
+                y = `data`))+
+    geom_line(aes(colour = Legend),size=0.75,alpha = 0.5) +
+    labs(x = "Date",
+         y = "Temperature", 
+         title = paste0("Subbasin ",reservoirs$SubbasinID[i]," - ",reservoirs$Reservoir_name[i]))+
+    theme_ipsum()
+  print(p)
+  # path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/plots"
+  # ggsave(
+  #   filename = paste0("0517_temp_",reservoirs$SubbasinID[i],".png"),
+  #   plot = p,
+  #     device = "png",
+  #     path = path,
+  #     scale = 1,
+  #     width = NA,
+  #     height = NA,
+  #     units = c("in", "cm", "mm"),
+  #     dpi = 300,
+  #     limitsize = TRUE
+  #   )
+}
+```
+
+## Humidity visual comparison
+
+```{r humidity visual comparison}
+#Humidity
+
+#Upload
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/output_time_series_gen"
+hum_gen<-read.table(paste0(path,"/output_hum_save_v1.txt"),skip = 1)
+path<-"C:/Thesis_fortran/WASA/Input/Time_series"
+hum_alex<-read.table(paste0(path,"/humidity.dat"),skip = 3)
+hum_gen<-hum_gen[1:11323,]
+hum_alex<-hum_alex[1:11323,] #end in 2010
+
+#Plots
+time_index<-seq(as.Date("1980-01-01"),as.Date("2010-12-31"),by="days")
+
+for(i in 1:nrow(reservoirs)){
+  #Creation of the dataset for the visualization
+  n<-as.numeric(reservoirs$SubbasinID[i])+2
+  visual1<-data.frame(hum_alex[,n],rep("Alexandre",length(hum_alex[,n])),time_index)
+  names(visual1)<-c("data","id","time")
+  
+  
+  visual2<-data.frame(abs(hum_gen[,n]),rep("Generated",length(hum_gen[,n])),time_index)
+  names(visual2)<-c("data","id","time")
+  visual<-cbind(rbind(visual1,visual2))
+  Legend<-visual$id
+  p<-ggplot(data = visual,
+            aes(x = `time`,
+                y = `data`))+
+    geom_line(aes(colour = Legend),size=0.75,alpha = 0.5) +
+    labs(x = "Date",
+         y = "Humidity", 
+         title = paste0("Subbasin ",reservoirs$SubbasinID[i]," - ",reservoirs$Reservoir_name[i]))+
+    theme_ipsum()
+  print(p)
+  # path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/plots"
+  # ggsave(
+  #   filename = paste0("0517_hum_",reservoirs$SubbasinID[i],".png"),
+  #   plot = p,
+  #     device = "png",
+  #     path = path,
+  #     scale = 1,
+  #     width = NA,
+  #     height = NA,
+  #     units = c("in", "cm", "mm"),
+  #     dpi = 300,
+  #     limitsize = TRUE
+  #   )
+}
+```
+
+## Radiation visual comparison
+
+```{r radiation visual comparison}
+#Radiation
+
+#Upload
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/output_time_series_gen"
+rad_gen<-read.table(paste0(path,"/output_rad_v1.txt"),skip = 1)
+path<-"C:/Thesis_fortran/WASA/Input/Time_series"
+rad_alex<-read.table(paste0(path,"/radiation.dat"),skip = 3)
+rad_gen<-rad_gen[1:11323,]
+rad_alex<-rad_alex[1:11323,] #end in 2010
+
+#Chech the coefficient
+coeff<-data.frame(reservoirs$SubbasinID)
+coeff$mean_coeff<-NA
+for(i in 1:nrow(reservoirs)){
+  n1<-as.numeric(reservoirs$SubbasinID[i])+2
+  n2<-i+2
+  div<-rad_alex[,n1]/rad_gen[,n2]
+  coeff$mean_coeff[i]<-round(mean(div[is.finite(div)], na.rm = TRUE))
+}
+
+
+
+
+#Plots
+time_index<-seq(as.Date("1980-01-01"),as.Date("2010-12-31"),by="days")
+
+for(i in 1:nrow(reservoirs)){
+  #Creation of the dataset for the visualization
+  #n<-as.numeric(reservoirs$SubbasinID[i])+2
+  n<-as.numeric(reservoirs$SubbasinID[i])+2
+  visual1<-data.frame(rad_alex[,n],rep("Alexandre",length(rad_alex[,n])),time_index)
+  names(visual1)<-c("data","id","time")
+  
+  n<-i+2
+  visual2<-data.frame(abs(rad_gen[,n]),rep("Generated",length(rad_gen[,n])),time_index)
+  names(visual2)<-c("data","id","time")
+  visual<-cbind(rbind(visual1,visual2))
+  Legend<-visual$id
+  p<-ggplot(data = visual,
+            aes(x = `time`,
+                y = `data`))+
+    geom_line(aes(colour = Legend),size=0.75,alpha = 0.5) +
+    labs(x = "Date",
+         y = "Radiation", 
+         title = paste0("Subbasin ",reservoirs$SubbasinID[i]," - ",reservoirs$Reservoir_name[i]))+
+    theme_ipsum()
+  print(p)
+  # path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/plots"
+  # ggsave(
+  #   filename = paste0("0517_hum_",reservoirs$SubbasinID[i],".png"),
+  #   plot = p,
+  #     device = "png",
+  #     path = path,
+  #     scale = 1,
+  #     width = NA,
+  #     height = NA,
+  #     units = c("in", "cm", "mm"),
+  #     dpi = 300,
+  #     limitsize = TRUE
+  #   )
+}
+```
+
+```{r}
+#Try changing the measuring unit
+output_rad_Wm2_v1<-rad_gen
+output_rad_Wm2_v1<-output_rad_Wm2_v1[,3:ncol(output_rad)]*3.6
+
+n<-5+2
+visual1<-data.frame(rad_alex[,n],rep("Alexandre",length(rad_alex[,n])),time_index)
+names(visual1)<-c("data","id","time")
+visual2<-data.frame(abs(output_rad_Wm2_v2[,n]),rep("Generated",length(output_rad_Wm2_v2[,n])),time_index)
+names(visual2)<-c("data","id","time")
+visual<-cbind(rbind(visual1,visual2))
+Legend<-visual$id
+p<-ggplot(data = visual,
+          aes(x = `time`,
+              y = `data`))+
+    geom_line(aes(colour = Legend),size=0.75,alpha = 0.5) +
+    labs(x = "Date",
+         y = "Radiation", 
+         title = paste0("Subbasin ",reservoirs$SubbasinID[i]," - ",reservoirs$Reservoir_name[i]))+
+    theme_ipsum()
+print(p)
+
+output_rad_Wm2_v2<-rad_gen
+output_rad_Wm2_v2<-output_rad_Wm2_v2[,3:ncol(output_rad_Wm2_v2)]*86.4
+
+
+```
+
+## Root Mean Square Deviation
+
+RMSE provides a single number that answers the question: "How similar, on average, are the numbers in list1 to list2?".
+
+```{r}
+
+RMSE = function(m, o){
+  #m: model values
+  #o: observed values
+  sqrt(mean((m - o)^2))
+}
+
+#Precipitation RMSE
+rain_gen[is.na(rain_gen),]<-0
+
+#Define a matrix containing the range of variability for each Sub-basin and its
+#RMSE
+for(i in 3:ncol(rain_gen)){
+  subID<-i-2
+  y0<-round(RMSE(rain_gen[,i],rain_alex[,i]), digits = 3)
+  y1<-paste0(min(rain_gen[,i])," - ",round(max(rain_gen[,i]),digits = 1))
+  y2<-round(mean(rain_gen[,i]), digits = 2)
+  y3<-paste0(min(rain_alex[,i])," - ",round(max(rain_alex[,i],digits = 1)))
+  y4<-round(mean(rain_alex[,i]), digits = 2)
+  
+  if(i > 3){
+      prec_comparison<-rbind(prec_comparison, data.frame(subID,y0,y1,y2,y3,y4))
+  }else prec_comparison<-data.frame(subID,y0,y1,y2,y3,y4)
+}
+names(prec_comparison)<-c("SubbasinID","RMSE", "Range generated", "Mean generated", "Range Alexandre", "Mean Alexandre")
+
+#Focus on Banabuiu subbasins
+
+View(prec_comparison[which(prec_comparison$SubbasinID %in% reservoirs$SubbasinID),])
+#Save this
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation"
+write.table(prec_comparison[which(prec_comparison$SubbasinID %in% reservoirs$SubbasinID),],
+            paste0(path,"/RMSE_prec.txt"), row.names = FALSE, sep = "\t")
+
+Bana_prec_RMSE<-read.table(paste0(path,"/RMSE_prec.txt"), header = TRUE, sep = "\t")
+View(Bana_prec_RMSE)
+```
+
+```{r}
+#Temperature RMSE
+#Define a matrix containing the range of variability for each Sub-basin and its
+#RMSE
+
+
+temp_gen[is.na(temp_gen)]<-0
+
+for(i in 3:ncol(rain_gen)){
+  subID<-i-2
+  y0<-round(RMSE(temp_gen[,i],temp_alex[,i]), digits = 3)
+  y1<-paste0(min(temp_gen[,i])," - ",round(max(temp_gen[,i]),digits = 1))
+  y2<-round(mean(temp_gen[,i]), digits = 2)
+  y3<-paste0(min(temp_alex[,i])," - ",round(max(temp_alex[,i],digits = 1)))
+  y4<-round(mean(temp_alex[,i]), digits = 2)
+  
+  if(i > 3){
+      temp_comparison<-rbind(temp_comparison, data.frame(subID,y0,y1,y2,y3,y4))
+  }else temp_comparison<-data.frame(subID,y0,y1,y2,y3,y4)
+}
+names(temp_comparison)<-c("SubbasinID","RMSE", "Range generated", "Mean generated", "Range Alexandre", "Mean Alexandre")
+
+#Focus on Banabuiu subbasins
+
+View(temp_comparison[which(temp_comparison$SubbasinID %in% reservoirs$SubbasinID),])
+#Save this
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation"
+write.table(temp_comparison[which(temp_comparison$SubbasinID %in% reservoirs$SubbasinID),],
+            paste0(path,"/RMSE_temp.txt"), row.names = FALSE, sep = "\t")
+
+Bana_temp_RMSE<-read.table(paste0(path,"/RMSE_temp.txt"), header = TRUE, sep = "\t")
+
+```
+
+# SIGA (abandoned)
+
+* Export the position vector as a point shapefile
+* Create a unique dataframe containing all the stations' observations: rows = date, columns = stations. Export it in a .csv file
+
+```{r}
+#Export the positions vector as a point shapefile
+remove(shp_stations)
+shp_stations<-positions_prec[which(positions_prec$ID %in% colnames(main_dataframe_prec)),]
+coordinates(shp_stations)<-c("long","lat")
+
+#Import the subbasins shapefile
+path<-"C:/Thesis_fortran/WASA/shapefile/streamgauges/Subbasins.shp"
+subbasins<-readOGR(path)
+summary(subbasins)
+
+#Assign the same reference system as the subbasins shapefile
+proj4string(shp_stations)<-CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+shp_stations <- spTransform(shp_stations, raster::crs(subbasins))
+summary(shp_stations)
+#EPSG:32724 - WGS 84 / UTM zone 24S - Proiettato
+
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/meteorological_stations_ceara/Meteorological_stations_FUNCEME"
+raster::shapefile(shp_stations, paste0(path,"/prec_stations_FUNCEME.shp"),overwrite=TRUE)
+
+
+#Rearrange main_dataframe so SIGA can read it
+#1. Insert "-999" where NA are present
+#2. Change the date column in DD/MM/AAAA
+
+SIGA_data<-main_dataframe_prec
+#insert -999
+SIGA_data[is.na(SIGA_data)] <- -999
+#change the date column
+date_correct<-main_dataframe_prec$date
+SIGA_data$date<-format(date_correct,"%d/%m/%Y")
+
+#Save as a .srs file
+write.table(SIGA_data,paste0(path,"/SIGA_precipitation.srs"),
+            quote=FALSE,sep="\t",row.names = FALSE)
+
+
+
+```
+
+
+# Drafts
+
+## Visualization
+
+```{r}
+
+# Usual area chart
+p <- visual %>%
+  ggplot( aes(x = time, y = data)) +
+  geom_area(aes(colour = Legend), alpha=0.5) +
+  geom_line(color="#69b3a2") +
+  theme_ipsum()
+
+# Turn it interactive with ggplotly
+p <- ggplotly(p)
+p
+
+vis<-data.frame(visual1$data,visual2$data)
+names(vis)<-c("vis1","vis2")
+p <- ggplot(vis, aes(x = x) ) +
+  # Top
+  geom_density( aes(x = vis1, y = ..density..)) +
+  geom_label( aes(x=4.5, y=1, label="variable1")) +
+  # Bottom
+  geom_density( aes(x = vis2, y = -..density..)) +
+  geom_label( aes(x=4.5, y=-1, label="variable2")) +
+  theme_ipsum() +
+  xlab("value of x")
+p
+
+```
+
+```{r old dataset}
+#FUNCEME dataset, organized in "Dia 1, Dia 2..."
+#input<-list.files(path="./Prec_stations",full.names = T,recursive = TRUE)
+
+#prec_input<-list()
+#for(i in 1:length(input)){
+#  prec_input[[i]]<-read.table(input[i],header = TRUE,sep = ";")
+#}
+```
+
+## Clean the data
+
+```{r}
+#Remove the stations with non allowed positions (NA or 0)
+for(i in 1:length(prec_input[])){
+  #If coordinates are 0, remove the station
+  if(is.na(prec_input[[i]]$Latitude[1]) || prec_input[[i]]$Latitude[1] == 0){
+    prec_input[[i]]<-NULL
+  }
+  if(i >= length(prec_input[])) break
+}
+
+#Replace 888 and 999 with NA
+for(i in 1:length(prec_input[])){
+    #Put NA instead of 888
+    prec_input[[i]]<-na_if(prec_input[[i]],888)
+    prec_input[[i]]<-na_if(prec_input[[i]],999)
+    #Create a unique ID for each station
+    ID<-rep(paste0("Station ",i),length(prec_input[[i]]$Municipios))
+    prec_input[[i]]<-data.frame(prec_input[[i]],ID)
+}
+
+#Give the stations' ID to the list
+for(i in 1:length(prec_input[])){
+  names(prec_input)[i]<-prec_input[[i]]$ID[1]
+}
+```
+
+## Create the matrix and the positions vector
+
+### Positions vector
+
+```{r poition vector}
+#Position vector
+for(i in 1:length(prec_input[])){
+  name<-prec_input[[i]]$Postos[1]
+  ID<-paste0("Station ",i)
+  lat<-prec_input[[i]]$Latitude[1]
+  long<-prec_input[[i]]$Longitude[1]
+  if(i !=1 ){
+    positions<-rbind(positions, data.frame(name,ID,long,lat))
+  }else{
+    positions<-data.frame(name,ID,long,lat)
+  }
+}
+```
+
+### Output dataframe creation
+
+```{r}
+start_y<-1980; start_m<-1
+end_y<-2010;   end_m<-12
+test1 <- as.Date("1980-01-01")
+test2 <- as.Date("2010-12-31")
+test2-test1
+ndays<-11322  #result of the difference above
+
+#Import of the subbasins shapefile
+path<-"C:/Thesis_fortran/WASA/shapefile/streamgauges/Subbasins.shp"
+subbasins<-readOGR(path)
+
+#Output dataframe creation
+output<-data.frame(matrix(NA,nrow=ndays,ncol=2+length(subbasins@data$SubbasinID)))
+names(output)<-c("date","number of days",t(subbasins@data$SubbasinID))
+
+tic("Output generation")
+j<-1
+for(year in start_y:end_y){
+  for(month in start_m:end_m){
+    #Creation of a matrix containing the data for all the stations for 1 month
+    st<-0
+    for(i in 1:length(prec_input[])){
+      v<-prec_input[[i]][which(prec_input[[i]]$Anos == year & prec_input[[i]]$Meses == month),
+                         9:ncol(prec_input[[i]])-1]
+      
+      if(dim(v)[1] != 0){
+        if(st != 0){
+          matrix<-data.frame(matrix,t(v))
+          st<-append(st,prec_input[[i]]$ID[1])
+        }else{
+          matrix<-t(v)
+          st<-prec_input[[i]]$ID[1]
+        }
+      }
+    }
+    names(matrix)<-st
+    for(i in 1:nrow(matrix)){
+      #First day data, with coordinates associated
+      #NA are removed, and stations with NA on that day are not considered
+      check<-matrix[i,][which(!is.na(matrix[i,]))]
+      row.names(check)<-NULL
+      if(ncol(check)>0){
+        col<-colnames(check)
+        shape<-data.frame(t(check),
+                          positions$long[which(positions$ID %in% col)],
+                          positions$lat[which(positions$ID %in% col)])
+        names(shape)<-c("data","long","lat")
+        
+        #Creation of a spatial element
+        coordinates(shape)<-c("long","lat")
+        crs.pos<-CRS("+proj=longlat") #definition of the projection
+        proj4string(shape)<-crs.pos
+        shape <- spTransform(shape, crs(subbasins))
+        shape@bbox <- subbasins@bbox
+        
+        #Interpolate to create a raster
+        th <- as(dirichlet(as.ppp(shape)), "SpatialPolygons")
+        proj4string(th) <- proj4string(shape)
+        th.z <- over(th, shape)
+        th.z$data[is.na(th.z$data)] <- 0
+        th.spdf <- SpatialPolygonsDataFrame(th, th.z)
+        
+        #Superimpose the subbasin shapefile and obtain a mean of the values in the 
+        #Thiessen polygons for each subbasin
+        
+        data_sub<-over(subbasins,th.spdf,fn=mean)
+        #at the spatial locations of object x retrieves the indexes
+        #or attributes from spatial object y
+        
+        #Save the values in a pre-made data.frame
+        output[j,3:ncol(output)]<-t(data_sub)
+        j <- j+1
+        #}else if(i!=nrow(matrix)){
+        #  j <- j+1
+      }
+    }
+    remove(shape,th,th.z,th.spdf,data_sub)
+  }
+}
+toc()
+#First try: it took 3h 38m
+#Over was done using the function "mean"
+
+```
+
+### Interpolation update
+
+```{r}
+#Interpolation update
+
+year<-start_y
+month=start_m
+i<-1
+
+## Primo tentativo
+
+require(deldir)
+require(sp)
+
+del <- deldir(x = shape$long,y = shape$lat,z = shape$data)
+del_sp <- tile.list(del)
+
+wcols <- topo.colors(length(del_sp)) 
+plot(del_sp, fillcol=wcols, close=TRUE)
+
+#Ok, questo mi crea una tessellazione
+#Problema: si può fare analisi spaziale utilizzando questo "oggetto"?
+
+#Prova di soluzione, a questo link: https://stackoverflow.com/questions/9403660/how-to-create-thiessen-polygons-from-points-using-r-packages
+polys<-vector(mode='list',length=length(del_sp))
+ for (i in seq(along=polys)) {
+    pcrds <- cbind(del_sp[[i]]$x, del_sp[[i]]$y)
+    pcrds <- rbind(pcrds, pcrds[1,])
+    polys[[i]] <- Polygons(list(Polygon(pcrds)), ID=as.character(i))
+ }
+SP <- SpatialPolygons(polys)
+voronoi <- SpatialPolygonsDataFrame(SP,
+    data=data.frame(x = shape$long,
+    y = shape$lat,z=shape$data))
+
+
+## Secondo tentativo
+
+voronoipolygons <- function(x) {
+  require(deldir)
+  require(sp)
+  if (.hasSlot(x, 'coords')) {
+    crds <- x@coords  
+  } else crds <- x
+  op <- deldir(x=crds[,2],y= crds[,3],z=crds[,1])
+  w <- tile.list(op)
+  polys <- vector(mode='list', length=length(w))
+  for (i in seq(along=polys)) {
+    pcrds <- cbind(w[[i]]$x, w[[i]]$y)
+    pcrds <- rbind(pcrds, pcrds[1,])
+    polys[[i]] <- Polygons(list(Polygon(pcrds)), ID=as.character(i))
+  }
+  SP <- SpatialPolygons(polys)
+  voronoi <- SpatialPolygonsDataFrame(SP, data=data.frame(x=crds[,2],
+    y=crds[,3],z=crds[,1], row.names=sapply(slot(SP, 'polygons'), 
+    function(x) slot(x, 'ID'))))
+}
+
+tic()
+prova<-voronoipolygons(shape)
+toc()
+#così creo direttamente uno SpatialPolygon
+#posso poi applicare il sistema di riferimento ecc, e tagliare
+#andare avanti su questa strada!
+
+```
+
+
+## SIGA first try (not completed)
+
+```{r}
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/meteorological_stations_ceara"
+
+#Export the positions vector as a point shapefile
+shp_stations<-positions
+coordinates(shp_stations)<-c("long","lat")
+proj4string(shp_stations)<-CRS("+proj=longlat")
+raster::shapefile(shp_stations, paste0(path,"/stations.shp"),overwrite=TRUE)
+#summary(shp_stations)
+
+#Create a unique dataframe containing all the stations' observations
+#Row: date
+#Columns: stations
+
+start_y <- 1980
+end_y <- 2010
+start_m <- 01
+end_m <- 12
+
+start<-paste0("01/0",start_m,"/",start_y)
+end<-paste0("31/",end_m,"/",end_y)
+date<-seq(as.Date(start,"%d/%m/%Y"), as.Date(end,"%d/%m/%Y"), by="days")
+
+main_dataframe<-data.frame(date)
+i<-1
+for(i in 1:length(prec_input[])){
+  for(j in 1:nrow(main_dataframe)){
+    y<-lubridate::year(main_dataframe$date[j])
+    m<-lubridate::month(main_dataframe$date[j])
+    
+    check1<-prec_input[[i]]$Anos[1]
+    check2<-prec_input[[i]]$Meses[1]
+    
+    if(check1 == y & check2 == m){
+      for(a in 1:length(prec_input[[i]])){
+        prec_input[[i]][a,8:ncol(prec_input[[i]])]
+      }
+      break
+    }
+  }
+}
+
+for(month in start_m:end_m){
+    #Creation of a matrix containing the data for all the stations for 1 month
+    st<-0
+    for(i in 1:length(prec_input[])){
+      v<-prec_input[[i]][which(prec_input[[i]]$Anos == year & prec_input[[i]]$Meses == month),
+                         9:ncol(prec_input[[i]])-1]
+      
+      if(dim(v)[1] != 0){
+        if(st != 0){
+          matrix<-data.frame(matrix,t(v))
+          st<-append(st,prec_input[[i]]$ID[1])
+        }else{
+          matrix<-t(v)
+          st<-prec_input[[i]]$ID[1]
+        }
+      }
+    }
+    names(matrix)<-st
+}
+```
+
+

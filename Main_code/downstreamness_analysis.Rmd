@@ -1,0 +1,123 @@
+---
+title: "Downstreamness Analysis"
+author: "Paolo Colombo"
+date: "4/6/2021"
+output: html_document
+---
+
+# What is the downstreamness analysis
+
+The downstreamness of a location is the ratio of its upstream catchment area to the entire river basin area. The downstreamness of a function on the basin, such as water availability or water demand, is defined as the downstreamness-weighted integral of that function divided by its regular integral.
+The downstreamness concept will be used in the analysis performed here by considering it applied to Banabuiu's reservoirs' storage capacities and stored volumes.
+
+# How to perform it
+
+The first step requires to compute the downstreamness of the reservoirs (D~x~), by dividing the upstream catchment area by the whole catchment area. 
+
+For analyzing the downstreamness of a basin’s storage capacity, the capacity of reservoirs and the locations of dams are relevant. The downstreamness of the total storage capacity in a basin, D~SC~, can change over time attributable to newly built reservoirs or capacity loss by sedimentation. **Need to address this!**
+The storage capacities of the reservoirs are then used as weights to determine D~SC~, which is a measure of how far downstream storage capacity in the basin is located on average.
+
+D~SC~ computation equation: ![1](C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/downstreamness/Dsc.png)
+
+For analyzing the downstreamness of stored volumes in reservoirs, D~SV~, in a basin, reservoir volumes and the locations of the dams are relevant. D~SV~ changes because volumes at different locations can change over time at different rates. The stored volumes at different time steps of the reservoirs are then used as weights to determine D~SV~, which is a measure of how far downstream stored water in the basin is located on average.
+
+D~SV~ computation equation: ![2](C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/downstreamness/Dsv.png)
+
+# Downstreamness
+
+## Pre-processing
+
+* Merge the DEM
+* Cut it around the Banabuiu basin area
+
+## D~x~ computation
+
+* Extract the outlet points from the main reservoir shapefile and create a point shapefile
+* Be sure to associate the capacities of each reservoir to the points shapefile
+* Join the outlet points of the main reservoirs with the HDRN shapefile (v2)
+  + This point shapefile should contain, for each point: coordinates, capacity, SubbasinID, a Boolean value indicating if it is a monitored reservoir
+* Download a DEM of the Banabuiu region [Here how to download it from NASA][youtube tutorial]
+
+[youtube tutorial]: https://www.youtube.com/watch?v=0nmYzQo0OSY
+
+### Considering the whole Banabuiu catchment
+
+* Superimpose the joined shapefile to a DEM of the Banabuiu
+* From the DEM, compute the area of the upstream catchment relative to each reservoir
+* Compute D~x~ for each reservoir by dividing their upstream area by the total area
+* Insert the D~x~ as a new column in the attributes of the point shapefile
+
+### Considering each sub-catchment separately
+
+* Subdivide the whole Banabuiu DEM into the sub-catchments
+* From the DEM, compute the area of the upsream sub-catchment relative to each reservoir in that sub-catchment
+* Compute D~x~ for each reservoir by dividing their upstream area by the total area
+* Insert the sub-catchment D~x~ as a new column in the attributes of the point shapefile
+
+# Downstreamness in the HDRN scenario
+
+## D~SC~ computation, monitored reservoirs and HDRN
+
+For the last year, consider both the monitored reservoirs and the HDRN. The storage capacities of the monitored reservoirs are found in *reservoir.dat*, while the storage capacities of the HDRN is found in the attribute table of *HDRN_afterR_v2.shp*.
+
+* Extract the monitored reservoirs capacities
+* Extract the HDRN capacities
+* Whole Banabuiu D~SC~: Compute D~SC~ referred to the whole Banabuiu following the first equation
+* Sub-catchments D~SC~: Compute D~SC~ referred to each sub-catchment by:
+  + Selecting the reservoirs inside the sub-catchments present in that year
+  + Compute the D~SC~ for each sub-catchment by considering the selected reservoirs
+
+## D~SV~ computation
+
+In *lake_storage.out*, the water volume is found for each one of the 5 reservoir classes for each subbasin. Since the real positions of the small reservoirs are not considered in the WASA model, we cannot rely on the volume allocation throughout the five classes operated by the model. So, for each subcatchment we can consider all the reservoirs in the 5 classes, and assign them the same volume, obtained by summing the volumes of the classes and dividing by the number of reservoirs.
+The number of reservoirs to calculate the mean volume can be obtained by reclassifying the HDRN reservoirs considering the increase coefficient in the WASA model backwards, so by computing  the number of reservoirs in the previous years by applying the increase coefficient backwards. In this way, the position information of the small reservoirs gets lost. So, it would be probably better to just consider the final number of small reservoirs to compute the volumes. Anyway, the growing number of small reservoirs has to be taken into account while calibrating the model.
+
+The volume of the monitored reservoirs is provided in different *res_watbal.out* files, one for each reservoirs, so the operation above won't be needed for them.
+
+For the whole Banabuiu:
+
+* Extract the stored volume of the monitored reservoirs:
+  + Obtain monthly values
+  + Assign the mean volume to each reservoir
+* Extract the stored volume in the 5 small reservoirs classes:
+  + Obtain monthly values
+  + Sum the monthly values of each class together
+  + Obtain a mean volume by dividing the sum by the number of small reservoirs
+  + Assign the mean volume to each reservoir
+* Compute D~SV~ for each month by using the formula
+
+For each sub-catchment:
+
+* Extract the stored volume of the monitored reservoirs in that subcatchment:
+  + Obtain monthly values
+  + Assign the mean volume to each reservoir
+* Extract the stored volume in the 5 small reservoirs classes in that subcatchment:
+  + Obtain monthly values
+  + Sum the monthly values of each class together
+  + Obtain a mean volume by dividing the sum by the number of small reservoirs
+  + Assign the mean volume to each reservoir
+* Compute D~SV~ for each month by using the formula
+
+# Downstreamness in the only monitored reservoirs scenario
+
+## D~SC~ computation, only monitored reservoirs
+
+Compute an yearly D~SC~, by selecting the reservoirs present each year. The results will show the evolution of the downstreamness of the monitored reservoirs throughout the years.
+
+For each year:
+* Compute D~SC~ referred to the whole Banabuiu following the first equation, selecting the reservoirs present is that year.
+* Compute D~SC~ referred to each sub-catchment by:
+  + Selecting the reservoirs inside the sub-catchments present in that year
+  + Compute the D~SC~ for each sub-catchment by considering the selected reservoirs
+
+## 
+
+
+## Libraries and functions
+
+```{r libraries and functions}
+setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis")
+
+source("Libraries.R")
+source("Functions.R")
+```

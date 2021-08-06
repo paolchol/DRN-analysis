@@ -1,0 +1,28 @@
+Reservoir_name	SubbasinID
+Acude Pedras Brancas	123
+Acude Poco do Barro	125
+Acude Cipoada	126
+Acude Cedro	127
+No reservoir	134
+No reservoir	137
+Acude Curral Velho (Morada Nova)	138
+No reservoir	139
+Acude Umari	142
+Acude Quixeramobim	143
+No reservoir	144
+Acude Sao Jose II	145
+Acude Jatoba	146
+Acude Pirabibu	147
+Acude Sao José I	148
+Acude Patu	149
+Acude Serafim Dias	150
+Acude Vieirao	151
+Acude Monsenhor Tabosa	152
+Acude Trapia II	153
+Acude Capitao Mor	154
+No reservoir	155
+Acude Arrojado Lisboa (Banabuiu)	156
+No reservoir	157
+No reservoir	158
+No reservoir	159
+Acude Fogareiro	160
