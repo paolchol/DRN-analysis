@@ -2,18 +2,21 @@
 
 # Setup -------------------------------------------------------------------
 
-setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis")
+#Directory
+setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
+#Path to the original observations
 path_obs <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/Observed_volumes/volume_series_banabuiu_reservoirs_ID"
+#Path to the WASA results defining the baseline
 path_baseline <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Output_Second_Run"
-path_save <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/Model_calibration/Iterations"
-path_performance <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/Model_calibration/Automatic_calibration/Performances"
+#Path to save the intermediate results
+path_save <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/Model_calibration/Automatic_calibration"
 
-source("Libraries.R")
-source("Functions.R")
-source("Functions_TG.R")
-source("Functions_DP.R")
-source("Functions_CO.R")
-source("Functions_MC.R")
+source("./Libraries/Libraries.R")
+source("./Libraries/Functions.R")
+source("./Libraries/Functions_TG.R")
+source("./Libraries/Functions_DP.R")
+source("./Libraries/Functions_CO.R")
+source("./Libraries/Functions_MC.R")
 
 #Load the maximum capacities of the reservoirs
 path_maxcap <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Input/Reservoir/reservoir.dat"
@@ -24,6 +27,7 @@ maxcap[,2] <- maxcap[,2]*1000 #m3
 
 # Load the observations ---------------------------------------------------
 
+#From scratch
 obs_input <- create_data_list(path_obs, c('date', 'volume'), skip = 1, f = read.csv, s = ",")
 date <- create_date_vector(1980, 2018)
 IDs <- data.frame(ID = gsub("\\..*","",basename(obs_input[[1]])))
@@ -34,17 +38,25 @@ obs_df <- create_main_dataframe(date, obs_input[[2]], IDs, timecol = 1, datacol 
 obs_df <- remove_high_values(obs_df, maxcap$max)
 obs_df <- monthly_scale(obs_df, f = sumx)
 
-# Load the baseline -------------------------------------------------------
+#From the saved df
+load('./Inputs/Calibration/df_observations.RData')
 
+# Load the baseline -------------------------------------------------------
+#The baseline is the un-calibrated model after adding the release observations
+
+#From scratch
 date <- create_date_vector(1980, 2018)
 base_df <- load_WASA_results(path_baseline, IDs, dates = date)
 base_df <- remove_high_values(base_df, maxcap$max)
 base_df <- monthly_scale(base_df, f = sumx)
 
+#From the saved df
+load('./Inputs/Calibration/df_uncalibrated.RData')
+
 # Calibration -------------------------------------------------------------
 
 #Path for scaling_factor file and output
-path_scaling_in <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/Model_calibration/Iterations/starting_scaling_factor.dat"
+path_scaling_in <- "./Inputs/Calibration/uncalibrated_scaling_factor.dat"
 path_scaling_out <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Input/Others" 
 path_WASA_output <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Output"
 
@@ -70,8 +82,10 @@ no_res_sub <- c(134, 137, 139, 144, 155, 157, 158, 159)
 sub_to_calibrate <- 125 #right_branch
 par_range <- seq(5, 10, 0.2) #seq(0.2, 7, 0.2)
 
-#scaling_factors <- data.frame(IDs, val = 1)
-scaling_factors <- read.table(paste0(path_save, "/automatic_scaling_factor_right_branch.dat"), sep = "\t",
+#First launch, on the left branch
+# scaling_factors <- data.frame(IDs, val = 1)
+#Second launch, on the right branch, using the results on the left
+scaling_factors <- read.table("./Inputs/Calibration/automatic_scaling_factor_v1_left.dat", sep = "\t",
                              col.names = c('ID', 'val'), header = TRUE)
 list_performance <- list()
 
@@ -106,33 +120,30 @@ for(i in restart:length(sub_to_calibrate)){
   scaling_factors$val[scaling_factors$ID == sub] <- par_max
   
   #Save the performance
-  
-  
-  ### CHANGE THE PATH TO SAVE THE RESULTS ###
-  
-  
-  
   list_performance[[paste0("s", sub)]] <- performance
-  write.table(performance, paste0(path_performance, "/", sub, "_KGEperformance.txt"),
-              sep = "\t", quote = FALSE, row.names = FALSE)
-  modify_scaling_factor(path_scaling_in, path_save, scaling_factors$ID, scaling_factors$val,
+  write.table(performance, paste0(path_save, "/Performances/Single_change_perf/",
+              sub, "_KGEperformance.txt"), sep = "\t", quote = FALSE,
+              row.names = FALSE)
+  modify_scaling_factor(path_scaling_in, paste0(path_save, "/Scaling_factors/Iterations/"),
+                        scaling_factors$ID, scaling_factors$val,
                         name = paste0("automatic_scaling_factor_", sub))
 }
 
 #Save the scaling_factors
-modify_scaling_factor(path_scaling_in, path_save, scaling_factors$ID, scaling_factors$val,
+modify_scaling_factor(path_scaling_in, paste0(path_save, "/Scaling_factors/"), scaling_factors$ID, scaling_factors$val,
                       name = "automatic_scaling_factor_right_branch")
 #Save the performances
-list.save(list_performance, paste0(path_save, "/list_performance_right.RData"))
+list.save(list_performance, paste0(paste0(path_save, "/Performances/"), "/list_performance_right.RData"))
 toc()
 #Left branch - Automatic calibration - Restart from 4: 9 hours
+
 
 #Load the obtained scaling factors
 # scaling_factors <- read.table(paste0(path_save, "/automatic_scaling_factor_left_branch.dat"), sep = "\t",
 #                              col.names = c('ID', 'val'), header = TRUE)
 #Use this one to start the right branch calibration!
-
 #Load all the performances
+
 
 # Check one configuration -------------------------------------------------
 
@@ -140,7 +151,8 @@ toc()
 # subb <- 154
 # val <- 2.4
 #or load the best configuration obtained
-scaling_factor <- read.table(paste0(path_save, "/automatic_scaling_factor_v2_leftright.dat"), sep = "\t", header = TRUE)
+sf_load <- "./Inputs/Calibration/calibrated_scaling_factor.dat"
+scaling_factor <- read.table(sf_load, sep = "\t", header = TRUE)
 subb <- scaling_factor[,1]; val <- scaling_factor[,2]
 code <- gen_code(subb, val)
 modify_scaling_factor(path_scaling_in, path_scaling_out, subb, val)

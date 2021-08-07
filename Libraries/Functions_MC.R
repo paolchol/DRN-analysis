@@ -283,13 +283,13 @@ modify_scaling_factor = function(pathin, pathout, subID, values,
 
 WASA_calibration_evaluation = function(path, IDs, maxcap, obs, code, results,
                                        mean_results, complete = FALSE, start_obs = FALSE,
-                                       keep_mean = TRUE){
+                                       keep_mean = TRUE, st_date = 1980, end_date = 2018){
   #Load the output data from the path (path)
   #Compute the indicators using the observations (obs)
   #Save the results in a new column in "results", with "code" as a name 
   
   #Load
-  date <- create_date_vector(1980, 2018)
+  date <- create_date_vector(st_date, end_date)
   df <- load_WASA_results(path, IDs, dates = date)
   df <- remove_high_values(df, maxcap)
   df <- monthly_scale(df, f = sumx)
