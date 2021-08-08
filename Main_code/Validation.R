@@ -12,6 +12,8 @@ source("./Libraries/Functions_DP.R")
 source("./Libraries/Functions_CO.R")
 source("./Libraries/Functions_MC.R")
 
+setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
+
 #Load the maximum capacities of the reservoirs
 path_maxcap <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Input/Reservoir/reservoir.dat"
 reservoirs <- read.table(path_maxcap, skip = 2, sep = "\t")
@@ -77,6 +79,8 @@ cal_results <- WASA_calibration_evaluation(path_WASA_output, cal_IDs, cal_maxval
 
 plot_stat_calibration(cal_results$complete, 'Calibration')
 
+list.save(cal_results, "./Inputs/Calibration/cal_results_80_06.RData")
+
 # Launch on the validation window -----------------------------------------
 
 #Modify the do.dat file
@@ -103,7 +107,9 @@ val_results <- WASA_calibration_evaluation(path_WASA_output, val_IDs, val_maxval
                                            code = 'validation', complete = TRUE, start_obs = TRUE,
                                            keep_mean = FALSE, st_date = 2007, end_date = 2018)
 
-plot_stat_calibration(val_results$complete, 'validation')
+plot_stat_calibration(val_results$complete, 'Validation')
+
+list.save(val_results, "./Inputs/Calibration/val_results_80_06.RData")
 
 # Mean results ------------------------------------------------------------
 

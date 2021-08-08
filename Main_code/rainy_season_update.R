@@ -3,11 +3,12 @@
 
 # Setup -------------------------------------------------------------------
 
-setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis")
+setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
+path_export <- "./Inputs/Model_input/Model_enhancement/Time_series_update"
 
-source("Libraries.R")
-source("Functions.R")
-source("Functions_CO.R")
+source("./Libraries/Libraries.R")
+source("./Libraries/Functions.R")
+source("./Libraries/Functions_CO.R")
 
 # Load the precipitation time series --------------------------------------
 

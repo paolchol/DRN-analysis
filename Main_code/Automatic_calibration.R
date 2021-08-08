@@ -17,6 +17,7 @@ source("./Libraries/Functions_TG.R")
 source("./Libraries/Functions_DP.R")
 source("./Libraries/Functions_CO.R")
 source("./Libraries/Functions_MC.R")
+setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
 
 #Load the maximum capacities of the reservoirs
 path_maxcap <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Input/Reservoir/reservoir.dat"
@@ -120,14 +121,15 @@ for(i in restart:length(sub_to_calibrate)){
   scaling_factors$val[scaling_factors$ID == sub] <- par_max
   
   #Save the performance
-  list_performance[[paste0("s", sub)]] <- performance
-  write.table(performance, paste0(path_save, "/Performances/Single_change_perf/",
-              sub, "_KGEperformance.txt"), sep = "\t", quote = FALSE,
-              row.names = FALSE)
-  modify_scaling_factor(path_scaling_in, paste0(path_save, "/Scaling_factors/Iterations/"),
-                        scaling_factors$ID, scaling_factors$val,
-                        name = paste0("automatic_scaling_factor_", sub))
+  # list_performance[[paste0("s", sub)]] <- performance
+  # write.table(performance, paste0(path_save, "/Performances/Single_change_perf/",
+  #             sub, "_KGEperformance.txt"), sep = "\t", quote = FALSE,
+  #             row.names = FALSE)
+  # modify_scaling_factor(path_scaling_in, paste0(path_save, "/Scaling_factors/Iterations/"),
+  #                       scaling_factors$ID, scaling_factors$val,
+  #                       name = paste0("automatic_scaling_factor_", sub))
 }
+toc()
 
 #Save the scaling_factors
 modify_scaling_factor(path_scaling_in, paste0(path_save, "/Scaling_factors/"), scaling_factors$ID, scaling_factors$val,
@@ -174,7 +176,7 @@ mod_df <- load_WASA_results(path_WASA_output, IDs, dates = date)
 mod_df <- remove_high_values(mod_df, maxcap$max)
 mod_df <- monthly_scale(mod_df, f = sumx)
 #Write the subbasins to visualize
-ID_plot <- 125
+ID_plot <- 156
 plot_calibration(mod_df, base_df, obs_df, ID_plot, code)
 
 

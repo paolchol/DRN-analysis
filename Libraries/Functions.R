@@ -4,7 +4,7 @@ create_time_series_Wmean = function(main_dataframe, positions, layer){
   #main_dataframe: the main dataframe with all stations observations
   #positions: the dataframe containing the positions of the stations
   #layer: the layer to superimpose to the Voronoi diagram
-
+  
   require(deldir)
   require(sp)
   output<-data.frame(matrix(NA, nrow = nrow(main_dataframe),
@@ -32,7 +32,7 @@ create_time_series_Wmean = function(main_dataframe, positions, layer){
       #Create the Voronoi diagram
       thiessen<-voronoipolygons(shape, corners=corners)
       proj4string(thiessen)<-CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
-      thiessen <- spTransform(thiessen, raster::crs(layer))
+      thiessen <- spTransform(thiessen, layer@proj4string@projargs)
       #summary(thiessen)
       
       data_sub<-raster::intersect(layer, thiessen)

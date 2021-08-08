@@ -7,6 +7,10 @@ setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Dir
 #Path to save the intermediate results
 path_save <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/Model_calibration/Automatic_calibration"
 
+load("./Inputs/General/IDs.RData")
+load('./Inputs/Calibration/df_observations.RData')
+load('./Inputs/Calibration/df_uncalibrated.RData')
+
 source("./Libraries/Libraries.R")
 source("./Libraries/Functions.R")
 source("./Libraries/Functions_TG.R")
@@ -14,16 +18,14 @@ source("./Libraries/Functions_DP.R")
 source("./Libraries/Functions_CO.R")
 source("./Libraries/Functions_MC.R")
 
+setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
+
 #Load the maximum capacities of the reservoirs
 path_maxcap <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Input/Reservoir/reservoir.dat"
 reservoirs <- read.table(path_maxcap, skip = 2, sep = "\t")
 maxcap <- reservoirs[,c(1,5)]
 names(maxcap) <- c('ID','max')
 maxcap[,2] <- maxcap[,2]*1000 #m3
-
-load('./Inputs/Calibration/df_observations.RData')
-load('./Inputs/Calibration/df_uncalibrated.RData')
-
 
 # Calibration -------------------------------------------------------------
 
@@ -40,12 +42,7 @@ cal_obs <- obs_df[, !names(obs_df) %in% c(138, 142)]
 cal_obs <- cal_obs[cal_obs$date <= as.Date("2006-12-01"), ]
 
 #Calibration maxvalues
-cal_maxval <- maxcap$max[maxcap$ID %in% cal_IDs]
-
-#Compute the evaluation
-cal_results <- WASA_calibration_evaluation(path_WASA_output, cal_IDs, cal_maxval, cal_obs,
-                                           code = 'calibration', complete = TRUE, start_obs = TRUE,
-                                           keep_mean = FALSE, st_date = 1980, end_date = 2006)
+cal_maxval <- maxcap$max[maxcap$ID %in% cal_IDs$ID]
 
 #Path for scaling_factor file and output
 path_scaling_in <- "./Inputs/Calibration/uncalibrated_scaling_factor.dat"
@@ -58,8 +55,8 @@ left_branch <- c(154, 150, 145, 155,
                  127, 123,
                  146, 156,
                  126,
-                 125,
-                 138)
+                 125)
+                 #138) removed from the calibration scenario
 right_branch <- c(142, 157,
                   158,
                   151,
@@ -68,7 +65,8 @@ right_branch <- c(142, 157,
                   147,
                   143, 156) #re-calibration of 156 after the results of the right branch
 subbasins <- c(left_branch, right_branch)
-no_res_sub <- c(134, 137, 139, 144, 155, 157, 158, 159)
+no_res_sub <- c(134, 137, 139, 144, 155, 157, 158, 159,
+                142) #142 is without reservoirs only in the calibration scenario
 
 #Automatic calibration
 sub_to_calibrate <- subbasins
@@ -82,7 +80,7 @@ tic('Automatic calibration on 70% of the dataset')
 restart <- 1
 for(i in restart:length(sub_to_calibrate)){
   sub <- sub_to_calibrate[i]
-  performance <- data.frame(IDs)
+  performance <- data.frame(cal_IDs)
   for(j in 1:length(par_range)){
     #Modify the scaling factor file
     par <- par_range[j]
@@ -92,7 +90,7 @@ for(i in restart:length(sub_to_calibrate)){
     #Launch the model
     system2("C:/Thesis_fortran/WASA_Thesis/WASA_Thesis/x64/Release/WASA_Thesis.exe")
     #Evaluate the results
-    results <- WASA_calibration_evaluation(path_WASA_output, cal_IDs, cal_maxval, cal_obs,
+    results <- WASA_calibration_evaluation(path_WASA_output, IDs = cal_IDs, maxcap = cal_maxval, obs = cal_obs,
                                            code = code, complete = TRUE, start_obs = TRUE,
                                            keep_mean = FALSE, st_date = 1980, end_date = 2006)
     performance$new <- results$complete$KGE$unname.KGE_index.
@@ -124,9 +122,6 @@ modify_scaling_factor(path_scaling_in, paste0(path_save, "/Scaling_factors/"), s
 #Save the performances
 list.save(list_performance, paste0(paste0(path_save, "/Performances/"), "/list_performance_70percent.RData"))
 toc()
-
-
-
 
 
 

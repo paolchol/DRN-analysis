@@ -39,12 +39,18 @@ create_position_vector = function(files){
   return(positions)
 }
 
-add_date_column = function(data_list){
+add_date_column = function(data_list, complete = FALSE){
   #Creates a date column inside each station dataframe
-  for(i in 1:length(data_list[])){
-    d<-as.Date(paste0(data_list[[i]]$year,"-",data_list[[i]]$month,"-",
-                      data_list[[i]]$day))
-    data_list[[i]]$date<-d
+  if(!complete){
+    for(i in 1:length(data_list[])){
+      d<-as.Date(paste0(data_list[[i]]$year,"-",data_list[[i]]$month,"-",
+                        data_list[[i]]$day))
+      data_list[[i]]$date<-d
+    }
+  }else{
+    for(i in 1:length(data_list[])){
+      data_list[[i]]$date <- as.Date(data_list[[i]]$date, "%Y-%m-%d")
+    }
   }
   return(data_list)
 }

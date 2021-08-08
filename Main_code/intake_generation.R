@@ -2,10 +2,12 @@
 
 # Setup -------------------------------------------------------------------
 
-setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis")
+setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
 
-source("Libraries.R")
-source("Functions.R")
+source("./Libraries/Libraries.R")
+source("./Libraries/Functions.R")
+
+path_export <- "./Inputs/Model_input/Model_enhancement/Time_series_update"
 
 # Load files --------------------------------------------------------------
 
@@ -35,7 +37,7 @@ for(i in 1:length(withdrawal_list[])){
 #Specify the date range
 #Create the date vector
 start_y <- 1980
-end_y <- 2018
+end_y <- 2020 #2018
 start_m <- 01
 end_m <- 12
 start<-paste0("01/0",start_m,"/",start_y)
@@ -54,10 +56,10 @@ for(i in 1:length(withdrawal_list[])){
 }
 
 #Plot to check anomalies
-source("Functions_CO.R")
-path_plot <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/Model_calibration"
-plot_subbasins_df(withdrawal_df, y = "m3/s", label = "Withdrawal",
-                  interactive = TRUE, file = "withdrawal_line", path = path_plot, line = TRUE)
+# source("Functions_CO.R")
+# path_plot <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/Model_calibration"
+# plot_subbasins_df(withdrawal_df, y = "m3/s", label = "Withdrawal",
+#                   interactive = TRUE, file = "withdrawal_line", path = path_plot, line = TRUE)
 
 #Change the NA values to -999
 withdrawal_df[,3:ncol(withdrawal_df)][is.na(withdrawal_df[,3:ncol(withdrawal_df)])] <- -999
@@ -79,9 +81,9 @@ WASA_input_format_intake = function(df, header, path, name){
   return(df)
 }
 
-path_export <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/input_WASA_gen"
+#path_export <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/input_WASA_gen"
 h <- "# Specification of controlled release through reservoir's intake devices in [m3/s]\nDate,\tDoy,\t123,\t125,\t126,\t127,\t138,\t142,\t143,\t145,\t146,\t147,\t148,\t149,\t150,\t151,\t152,\t153,\t154,\t156,\t160"
-withdrawal_df_WASA <- WASA_input_format_intake(withdrawal_df, h, path_export, "intake_0807")
+withdrawal_df_WASA <- WASA_input_format_intake(withdrawal_df, h, path_export, "intake")
 
 
 

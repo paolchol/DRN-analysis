@@ -1,8 +1,8 @@
 #Functions for Model calibration
 
 #Other functions needed
-setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis")
-source("Functions_TG.R")
+setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
+source("./Libraries/Functions_TG.R")
 
 #Library needed
 library(hydroGOF)
@@ -262,7 +262,8 @@ gen_code = function(s, v){
 
 choose_sub = function(sub){
   to156 <- c(155, 144)
-  to160 <- c(157, 158, 159)
+  to160 <- c(157, 158, 159, 142)
+  #142 is only in the calibration scenario
   if(sub %in% to156) sub <- 156
   else if(sub %in% to160) sub <- 160
   return(sub)
