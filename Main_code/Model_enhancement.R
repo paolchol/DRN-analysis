@@ -129,6 +129,12 @@ toc()
 
 # Join the new with the actual dataset ----------------------------------------
 
+#New
+load(paste0(path_export, "/temperature_20192020.RData"))
+load(paste0(path_export, "/humidity_20192020.RData"))
+load(paste0(path_export, "/radiation_20182020.RData"))
+load(paste0(path_export, "/prec_20192020.RData"))
+
 #Actual dataset
 prec <- read.table("./Inputs/Model_input/Base/Time_series/rain_daily.dat", skip = 3)
 temp <- read.table("./Inputs/Model_input/Base/Time_series/temperature.dat", skip = 3)
@@ -142,12 +148,6 @@ names(temp) <- columns
 names(hum) <- columns
 names(rad) <- columns
 
-#New
-load(paste0(path_export, "/temperature_20192020.RData"))
-load(paste0(path_export, "/humidity_20192020.RData"))
-load(paste0(path_export, "/radiation_20182020.RData"))
-load(paste0(path_export, "/prec_20192020.RData"))
-
 #Join the datasets
 prec_f <- rbind(prec, output_prec)
 temp_f <- rbind(temp, output_temp)
@@ -155,7 +155,7 @@ hum_f <- rbind(hum, output_hum)
 
 replace_d <- create_date_vector(2018, 2018)
 rad$date <- change_date_WASA_input(rad$date)
-output_rad$date <- change_date_WASA_input(output_rad$date)
+output_rad$date <- change_date_WASA_input(as.numeric(output_rad$date))
 rad[rad$date %in% replace_d, ] <- output_rad[output_rad$date %in% replace_d, ]
 output_rad <- output_rad[-which(output_rad$date %in% replace_d), ]
 rad_f <- rbind(rad, output_rad)

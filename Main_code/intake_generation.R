@@ -7,7 +7,8 @@ setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Dir
 source("./Libraries/Libraries.R")
 source("./Libraries/Functions.R")
 
-path_export <- "./Inputs/Model_input/Model_enhancement/Time_series_update"
+# path_export <- "./Inputs/Model_input/Model_enhancement/Time_series_update"
+path_export <- "./Inputs/Model_input/Model_enhancement/Time_series_reanalysis"
 
 # Load files --------------------------------------------------------------
 
@@ -36,7 +37,7 @@ for(i in 1:length(withdrawal_list[])){
 
 #Specify the date range
 #Create the date vector
-start_y <- 1980
+start_y <- 1981
 end_y <- 2020 #2018
 start_m <- 01
 end_m <- 12

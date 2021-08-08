@@ -4,7 +4,8 @@
 # Setup -------------------------------------------------------------------
 
 setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
-path_export <- "./Inputs/Model_input/Model_enhancement/Time_series_update"
+# path_export <- "./Inputs/Model_input/Model_enhancement/Time_series_update"
+path_export <- "./Inputs/Model_input/Model_enhancement/Time_series_reanalysis"
 
 source("./Libraries/Libraries.R")
 source("./Libraries/Functions.R")
@@ -12,20 +13,16 @@ source("./Libraries/Functions_CO.R")
 
 # Load the precipitation time series --------------------------------------
 
-path <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/input_WASA_gen/WASA_Time_Series"
+# path <- "./Inputs/Model_input/Model_enhancement/Time_series_update"
+path <- "./Inputs/Model_input/Model_enhancement/Time_series_reanalysis"
 prec <- read.table(paste0(path, "/rain_daily.dat"), skip = 3)
 columns <- c("date", "n_days", "ID123", "ID125", "ID126", "ID127", "ID134", "ID137", "ID138", "ID139", "ID142", "ID143", "ID144", "ID145", "ID146", "ID147", "ID148", "ID149", "ID150", "ID151", "ID152", "ID153", "ID154", "ID155", "ID156", "ID157", "ID158", "ID159", "ID160")
 names(prec) <- columns
 prec$date <- change_date_WASA_input(prec$date)
 
-
 # Compute the rainy season file -------------------------------------------
 #For each subbasin, extract the first day of the year with precipitation > 0
 #and the last day of the year with precipitation > 0, for each year
-
-df <- prec
-i<-skip
-j<-1
 
 get_rainy_season = function(df, years, date_col = 1, skip = 2){
   #The rainy season in North-East Brazil goes from January to June.
@@ -71,7 +68,7 @@ get_rainy_season = function(df, years, date_col = 1, skip = 2){
   return(rainy_season)
 }
 
-years <- seq(1980, 2018, 1)
+years <- seq(1981, 2020, 1)
 rainy_season <- get_rainy_season(prec, years)
 
 # Export in the WASA input format -----------------------------------------
@@ -81,7 +78,7 @@ substrRight <- function(x, n){
 }
 rainy_season$ID <- substrRight(rainy_season$ID,3)
 
-path_export <- path
+#path_export <- path
 h <- "Specification of the rainy season (per year)\nfor the interpolation o temporal distribution of  vegetation characteristics (Rootdepth, height, lai, albedo)\nSubasin Year (Start-30) Startday Endday (End+30)"
 rseason_out <- my.write(rainy_season, paste0(path_export, "/rainy_season.dat"), header = h, f = write.table)
 
