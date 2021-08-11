@@ -18,6 +18,10 @@ source("./Libraries/Functions_DP.R")
 source("./Libraries/Functions_CO.R")
 source("./Libraries/Functions_MC.R")
 
+#Load hydroGOF the hard way
+files_sources = list.files("./Libraries/hydroGOF-master/R", full.names = T)
+sapply(files_sources, source)
+
 #Load the maximum capacities of the reservoirs
 path_maxcap <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Input/Reservoir/reservoir.dat"
 reservoirs <- read.table(path_maxcap, skip = 2, sep = "\t")

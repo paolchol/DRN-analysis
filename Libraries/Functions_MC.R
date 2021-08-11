@@ -4,9 +4,6 @@
 setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
 source("./Libraries/Functions_TG.R")
 
-#Library needed
-#library(hydroGOF)
-
 # Dataframe operations -----------------------------------------------------
 
 remove_high_values = function(df, maxval, skip = 1){
