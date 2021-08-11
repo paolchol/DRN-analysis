@@ -5,7 +5,7 @@ setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Dir
 source("./Libraries/Functions_TG.R")
 
 #Library needed
-library(hydroGOF)
+#library(hydroGOF)
 
 # Dataframe operations -----------------------------------------------------
 
@@ -146,16 +146,25 @@ plot_comp_FR_SR = function(res1, res2, y = "Value", label = "Title", interactive
   }
 }
 
-plot_calibration = function(it, base, obs, ID, code){
+plot_calibration = function(it, base, obs, ID, code, nobase = FALSE){
   ID <- ID[which(ID %in% colnames(it))]
-  vis_df <- data.frame(it$date, it[, which(colnames(it) %in% ID)],
-                       base[, which(colnames(base) %in% ID)],
-                       obs[, which(colnames(obs) %in% ID)])
-  names(vis_df) <- c('date', paste0(ID, "_it"), paste0(ID, "_base")
-                     , paste0(ID, "_obs"))
-  df <- reshape2::melt(vis_df, id.vars = 'date', variable.name = 'Runs')
-  p <- ggplot(df, aes(date, value)) + geom_line(aes(colour = Runs), alpha = 0.5, size = 1.2) +
-    xlab('Date') + ylab('Value') + ggtitle(paste0('Baseline vs ', code))  
+  if(!nobase){
+    vis_df <- data.frame(it$date, it[, which(colnames(it) %in% ID)],
+                         base[, which(colnames(base) %in% ID)],
+                         obs[, which(colnames(obs) %in% ID)])
+    names(vis_df) <- c('date', paste0(ID, "_it"), paste0(ID, "_base")
+                       , paste0(ID, "_obs"))
+    df <- reshape2::melt(vis_df, id.vars = 'date', variable.name = 'Runs')
+    p <- ggplot(df, aes(date, value)) + geom_line(aes(colour = Runs), alpha = 0.5, size = 1.2) +
+      xlab('Date') + ylab('Value') + ggtitle(paste0('Baseline vs ', code))
+  }else{
+    vis_df <- data.frame(it$date, it[, which(colnames(it) %in% ID)],
+                         obs[, which(colnames(obs) %in% ID)])
+    names(vis_df) <- c('date', paste0(ID, "_it"), paste0(ID, "_obs"))
+    df <- reshape2::melt(vis_df, id.vars = 'date', variable.name = 'Runs')
+    p <- ggplot(df, aes(date, value)) + geom_line(aes(colour = Runs), alpha = 0.5, size = 1.2) +
+      xlab('Date') + ylab('Value') + ggtitle(paste0('Baseline vs ', code))
+  }
   ggplotly(p)
 }
 
@@ -362,3 +371,15 @@ diff_baseline = function(base, it){
   }
   return(diff_base)
 }
+
+mean_performance = function(complete, remove_res = 0){
+  #remove_res: IDs of reservoirs you don't want to consider
+  mean_p <- data.frame(r2 = 0, NSE = 0, PBIAS = 0, KGE = 0, NRMSE = 0)
+  mean_p$r2 <- mean(complete$r2[,2][!(complete$r2$ID %in% remove_res)])
+  mean_p$NSE <- mean(complete$NSE[,2][!(complete$NSE$ID %in% remove_res)])
+  mean_p$PBIAS <- mean(complete$PBIAS[,2][!(complete$PBIAS$ID %in% remove_res)])
+  mean_p$KGE <- mean(complete$KGE[,2][!(complete$KGE$ID %in% remove_res)])
+  mean_p$NRMSE <- mean(complete$NRMSE[,2][!(complete$NRMSE$ID %in% remove_res)])
+  return(mean_p)
+}
+

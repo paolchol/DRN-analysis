@@ -1,0 +1,38 @@
+Parameter specifiation for the WASA Model (SESAM-Project)
+./Input/
+./Output/
+1981  //tstart (start year of simulation)
+2020  //tstop (end year of simulation)
+1 1    //mstart (start month of simulation)	
+12 31     //mstop (end month of simulation) 
+27    //no. of sub-basin
+166    //no. of combinations of sub-basin, soter unit, terrain component
+78   //total no. of SOTER units in study area
+166   //total no. of terrain components in study area
+14    //total no. of soil components in study area
+9    //total no. of vegetation units in study area
+.t.   //doreservoir: do reservoir calculations
+.t.   //doacudes:includes dam calculations
+.t.   //dolattc: do latflow between TCs
+.f.   //doalllattc: rout latflow compeletely to next downslope TC
+.t.   //dolatsc: do latflow within TCs (surface runoff)
+.t.   //dolatscsub: do latflow within TCs (subsurface runoff)
+.f.   //dotrans: do water transpositions betwen sub-basins
+.f.   //dohour: do hourly version
+0     //scenario: choose scenario (0:less rain (ECHAM), 1:no trend, 2:more rain (Hadley))
+0     //krig: type of precipitation interpolation (0:OK, 1:EDK, 2:EDKxyz, 3:csimabsed3, 4:csimreled3, 5:csimreled1, 6:csimabsed1, 7:statdata, 8:statdatacon, 9:gerstdatacon, 10:gerstdata, 11:ok_mean1cell)
+1 111.4 1  //kfkorr:  hydraulic conductivity factor (for daily model version) (kfkorr0) [optional: a <tab> b for kfcorr=kfcorr0*a*1/daily_precip+b]
+0.30  //intcf: interception capacity per unit LAI (mm)
+0     //dointc: type of interception routine (simple bucket:0, modified bucket:1)
+.t.   //doscale: do scaling due to rainfall interpolation ?
+.f.   //domuncell: for muni/ezg-nocell-version, use rainfall input derived from cells ? (change kf_calib.dat !)
+1.    //sensfactor: factor for sensitivity studies
+24	  //dt: time step in [hours]
+.f.   //dosediment
+3	  //No. of grain size classes
+1	  // type of sediment transport model at the hillslope	
+1     // type of water / sediment model in the river: (1) old routing, (2) Muskingum & ss transport, (3) Muskingum & bedload modelling
+1     //type of sediment model in the reservoir: choose sediment transport...	
+.f. //load state of storages from files (if present) at start (optional)
+.f. //save state of storages to files after simulation period (optional)
+                                                 

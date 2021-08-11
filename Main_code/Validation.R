@@ -12,8 +12,6 @@ source("./Libraries/Functions_DP.R")
 source("./Libraries/Functions_CO.R")
 source("./Libraries/Functions_MC.R")
 
-setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
-
 #Load the maximum capacities of the reservoirs
 path_maxcap <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Input/Reservoir/reservoir.dat"
 reservoirs <- read.table(path_maxcap, skip = 2, sep = "\t")
@@ -32,7 +30,7 @@ load("./Inputs/Calibration/df_observations.RData")
 #Following the 1a point in the hierarchical scheme proposed by Klemes, 1986,
 #the model is calibrated over 2/3 of the dataset and then validated over 1/3 of
 #the dataset
-#So, the two windws result as it follows:
+#So, the two windows result as it follows:
 # - Calibration window: 1980 - 2006
 # - Validation window: 2007 - 2018
 

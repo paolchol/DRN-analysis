@@ -17,7 +17,6 @@ source("./Libraries/Functions_TG.R")
 source("./Libraries/Functions_DP.R")
 source("./Libraries/Functions_CO.R")
 source("./Libraries/Functions_MC.R")
-setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
 
 #Load the maximum capacities of the reservoirs
 path_maxcap <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Input/Reservoir/reservoir.dat"

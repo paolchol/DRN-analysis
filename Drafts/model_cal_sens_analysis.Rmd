@@ -1,0 +1,19 @@
+---
+title: "Model calibration and sensitivity analysis"
+author: "Paolo Colombo"
+date: "23/5/2021"
+output: html_document
+---
+
+# Check the reservoirs simulation by comparing it to the observations
+
+
+```{r}
+hist(na.exclude(OBS_volumes$res_156))
+hist(WASA_volumes$res_156)
+
+sum(OBS_volumes$res_156,na.rm = TRUE)
+sum(WASA_volumes$res_156)
+
+```
+

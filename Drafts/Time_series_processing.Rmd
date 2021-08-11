@@ -1,0 +1,68 @@
+---
+title: "Time series processing"
+author: "Paolo Colombo"
+date: "14/6/2021"
+output: html_document
+---
+
+# Purpose
+
+Processing of the generated time series. At first, remove the outliers, then remove the NAs.
+
+## Functions
+
+```{r functions definition}
+check_outlier = function(dataframe, datecol = 1){
+  for(i in 1:ncol(dataframe)){
+    if(i != datecol){
+      Q1<-quantile(dataframe[,i],0.25, na.rm = TRUE)
+      Q3<-quantile(dataframe[,i],0.75, na.rm = TRUE)
+      IQR<-Q3-Q1
+      upper_limit<-Q3 + 1.5*IQR
+      lower_limit<-Q1 - 1.5*IQR
+      print(i)
+      print(sum(dataframe[,i] > upper_limit, na.rm = TRUE)+sum(dataframe[,i] < lower_limit, na.rm = TRUE))
+    }
+  }
+}
+
+remove_outlier = function(dataframe, datecol = 1, fill_val = NA){
+  for(i in 1:ncol(dataframe)){
+    if(i != datecol){
+      Q1<-quantile(dataframe[,i],0.25, na.rm = TRUE)
+      Q3<-quantile(dataframe[,i],0.75, na.rm = TRUE)
+      IQR<-Q3-Q1
+      upper_limit<-Q3 + 1.5*IQR
+      lower_limit<-Q1 - 1.5*IQR
+      dataframe[,i][dataframe[,i] > upper_limit]<-fill_val
+      dataframe[,i][dataframe[,i] < lower_limit]<-fill_val
+    }
+  }
+  dataframe
+}
+  
+remove_na = function(dataframe, skipcol = 1, k = 7, maxgap = 31){
+  #skipcol: number of columns to skip
+  firstcol<-1+skipcol
+  for(i in firstcol:ncol(dataframe)){
+    dataframe[,i]<-imputeTS::na_ma(dataframe[,i], k = k, maxgap = maxgap)
+  }
+  dataframe
+}
+  
+```
+
+
+# Remove outliers
+
+```{r}
+#Load the generated time series file
+
+
+
+
+
+
+
+```
+
