@@ -14,7 +14,7 @@ plot_subbasins_df = function(df, y = "Value", label = "Title", interactive = FAL
                              save = FALSE, path = "nopath", doy = TRUE, line = FALSE){
   require(reshape2)
   if(doy) df[,2] <- NULL
-  df<-melt(df, id.vars = 'date', variable.name = 'Subbasins')
+  df <- melt(df, id.vars = 'date', variable.name = 'Subbasins')
   if(line){
     p <- ggplot(df, aes(date, value)) + geom_line(aes(colour = Subbasins), alpha = 0.5, size = 1.5) +
       xlab("Date") + ylab(y) + ggtitle(label)
@@ -23,10 +23,12 @@ plot_subbasins_df = function(df, y = "Value", label = "Title", interactive = FAL
       xlab("Date") + ylab(y) + ggtitle(label)
   }
   if(interactive){
-    #ggplotly(p)
-    #Saves an interactive version
-    if(path == "nopath") htmlwidgets::saveWidget(plotly::ggplotly(p), paste0(file,".html"))
-    else htmlwidgets::saveWidget(plotly::ggplotly(p), paste0(path, "/",file,".html"))
+    ggplotly(p)
+    if(save){
+      #Saves an interactive version
+      if(path == "nopath") htmlwidgets::saveWidget(plotly::ggplotly(p), paste0(file,".html"))
+      else htmlwidgets::saveWidget(plotly::ggplotly(p), paste0(path, "/",file,".html"))
+    }
   }else if(save){
     #Saves a static version
     ggsave(

@@ -45,11 +45,14 @@ file.copy(from = paste0(path_scenario_data, "/Real/lake_number.dat"),
 #Launch the model
 system2("C:/Thesis_fortran/WASA_Thesis/WASA_Thesis/x64/Release/WASA_Thesis.exe")
 #Load the results
+path_real_sc <- "./Data/Scenarios/Real/Model_output"
 date <- create_date_vector(1980, 2018)
-real_df <- load_WASA_results(path_WASA_output, IDs, dates = date)
+real_df <- load_WASA_results(path_real_sc, IDs, dates = date)
 real_df <- remove_high_values(real_df, maxcap$max)
+#Save the daily dataframe
+save(real_df, file = './Data/Scenarios/Real/real_daily.RData')
 real_df <- monthly_scale(real_df, f = sumx)
-#Save the dataframe
+#Save the monthly dataframe
 save(real_df, file = './Data/Scenarios/Real/real_volumes.RData')
 
 # No HDNR scenario generation ---------------------------------------------
@@ -61,15 +64,22 @@ file.copy(from = paste0(path_scenario_data, "/No_HDNR/lake_number.dat"),
 #Launch the model
 system2("C:/Thesis_fortran/WASA_Thesis/WASA_Thesis/x64/Release/WASA_Thesis.exe")
 #Load the results
+path_noH_sc <- "./Data/Scenarios/No_HDNR/Model_output"
 date <- create_date_vector(1980, 2018)
-noH_df <- load_WASA_results(path_WASA_output, IDs, dates = date)
+noH_df <- load_WASA_results(path_noH_sc, IDs, dates = date)
 noH_df <- remove_high_values(noH_df, maxcap$max)
+#Save the daily dataframe
+save(noH_df, file = './Data/Scenarios/No_HDNR/noH_daily.RData')
 noH_df <- monthly_scale(noH_df, f = sumx)
 #Save the dataframe
 save(noH_df, file = './Data/Scenarios/No_HDNR/nohdnr_volumes.RData')
 
 
+# Check the differences ----------------------------------------------------
 
+df <- data.frame(date = real_df$date, real = real_df["123"], noH = noH_df["123"])
+names(df) <- c("date", "real", "noH")
+plot_df_interactive(df)
 
 
 

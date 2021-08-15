@@ -52,7 +52,6 @@ date<-seq(as.Date(start,"%d/%m/%Y"), as.Date(end,"%d/%m/%Y"), by="days")
 ## SPI12
 
 Monthly sum of the precipitation for each subbasins and for the whole basin, considering a one year window.
-Implement it by using the library James sent me.
 
 Do this for each subbasin and for the whole Banabuiu (by summing the precipitation in each subbasin)
 

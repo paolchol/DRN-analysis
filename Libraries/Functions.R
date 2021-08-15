@@ -338,3 +338,14 @@ voronoipolygons = function(x, corners=NULL) {
              y=op$summary$y,z=op$summary$z, row.names=sapply(slot(SP, 'polygons'),
             function(x) slot(x, 'ID'))))
 }
+
+
+# Visualization -----------------------------------------------------------
+
+plot_df_interactive = function(df){
+  options(scipen = 999)
+  df <- reshape2::melt(df, id.vars = 'date', variable.name = 'Columns')
+  p <- ggplot(df, aes(date, value)) + geom_line(aes(colour = Columns), alpha = 0.5, size = 1.2) +
+    xlab('X') + ylab('Value')
+  ggplotly(p)
+}
