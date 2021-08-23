@@ -27,8 +27,12 @@ D~SV~ computation equation: ![2](C:/Users/Utente/OneDrive - Politecnico di Milan
 
 ## Pre-processing
 
+* Download a DEM of the Banabuiu region [Here how to download it from NASA][youtube tutorial]
 * Merge the DEM
 * Cut it around the Banabuiu basin area
+* Obtain flow accumulation
+
+[youtube tutorial]: https://www.youtube.com/watch?v=0nmYzQo0OSY
 
 ## D~x~ computation
 
@@ -36,9 +40,6 @@ D~SV~ computation equation: ![2](C:/Users/Utente/OneDrive - Politecnico di Milan
 * Be sure to associate the capacities of each reservoir to the points shapefile
 * Join the outlet points of the main reservoirs with the HDRN shapefile (v2)
   + This point shapefile should contain, for each point: coordinates, capacity, SubbasinID, a Boolean value indicating if it is a monitored reservoir
-* Download a DEM of the Banabuiu region [Here how to download it from NASA][youtube tutorial]
-
-[youtube tutorial]: https://www.youtube.com/watch?v=0nmYzQo0OSY
 
 ### Considering the whole Banabuiu catchment
 
@@ -50,7 +51,7 @@ D~SV~ computation equation: ![2](C:/Users/Utente/OneDrive - Politecnico di Milan
 ### Considering each sub-catchment separately
 
 * Subdivide the whole Banabuiu DEM into the sub-catchments
-* From the DEM, compute the area of the upsream sub-catchment relative to each reservoir in that sub-catchment
+* From the DEM, compute the area of the upstream sub-catchment relative to each reservoir in that sub-catchment
 * Compute D~x~ for each reservoir by dividing their upstream area by the total area
 * Insert the sub-catchment D~x~ as a new column in the attributes of the point shapefile
 
@@ -69,7 +70,7 @@ For the last year, consider both the monitored reservoirs and the HDRN. The stor
 
 ## D~SV~ computation
 
-In *lake_storage.out*, the water volume is found for each one of the 5 reservoir classes for each subbasin. Since the real positions of the small reservoirs are not considered in the WASA model, we cannot rely on the volume allocation throughout the five classes operated by the model. So, for each subcatchment we can consider all the reservoirs in the 5 classes, and assign them the same volume, obtained by summing the volumes of the classes and dividing by the number of reservoirs.
+In *lake_storage.out*, the water volume is found for each one of the 5 reservoir classes for each subbasin. Since the real positions of the small reservoirs are not considered in the WASA model, we cannot rely on the volume allocation throughout the five classes operated by the model. So, for each subcatchment we can consider all the reservoirs in the 5 classes, and assign them the same volume, obtained by summing the volumes of the classes and dividing by the number of reservoirs in that catchment.
 The number of reservoirs to calculate the mean volume can be obtained by reclassifying the HDRN reservoirs considering the increase coefficient in the WASA model backwards, so by computing  the number of reservoirs in the previous years by applying the increase coefficient backwards. In this way, the position information of the small reservoirs gets lost. So, it would be probably better to just consider the final number of small reservoirs to compute the volumes. Anyway, the growing number of small reservoirs has to be taken into account while calibrating the model.
 
 The volume of the monitored reservoirs is provided in different *res_watbal.out* files, one for each reservoirs, so the operation above won't be needed for them.
