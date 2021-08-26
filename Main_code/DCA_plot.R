@@ -48,15 +48,39 @@ for(i in 1:length(DCA_real)){
 }
 
 df <- reshape2::melt(SPI_df, id.vars = 'date', variable.name = 'Subbasins')
-df$color <- rep(0, nrow(df))
-df$color[df$Subbasins == 'Banabuiu'] <- 1
+# df$color <- rep(0, nrow(df))
+# df$color[df$Subbasins == 'Banabuiu'] <- 1
 
-p <-  ggplot(df, aes(date, value)) +
-      geom_line(aes(colour = Subbasins), alpha = 0.5, size = 1) +
-      xlab('Date') + ylab('SPI-12')
-plot(p)
+date_ranges <- data.frame(
+  from = as.Date(c("1981-01-01", "1982-01-01", "1992-01-01", "1997-01-01", "2001-01-01", "2005-01-01", "2007-01-01", "2010-01-01")),
+  to = as.Date(c("1981-12-01", "1983-12-01", "1993-12-01", "1998-12-01", "2002-12-01", "2005-12-01", "2007-12-01", "2018-12-01"))
+)
 
-#Salvalo così e passa a downstr
+p <- ggplot() +
+  geom_line(data = df, aes(x = date, y = value, colour = Subbasins), alpha = 0.5, size = 1) +
+  # geom_line(data = df, aes(x = date[Subbasins == 'Banabuiu'], y = value[Subbasins == 'Banabuiu'], colour = 'darkblue')) +
+  geom_rect(data = date_ranges, aes(xmin = from, xmax = to, ymin = -Inf, ymax = Inf), alpha = 0.4) +
+  #Add the drought indicator lines
+  geom_hline(yintercept = 0, color = 'lightblue', linetype = "dashed", size = 1.25, alpha = 0.8) +
+  geom_text(aes(as.Date("1980-12-01"), 0, label = "Normal", vjust = -1, hjust = -2.65)) +
+  geom_hline(yintercept = -1, color = 'yellow', linetype = "dashed", size = 1.25, alpha = 0.8) +
+  geom_text(aes(as.Date("1980-12-01"), -1, label = "Moderately dry", vjust = -1, hjust = -1.3)) +
+  geom_hline(yintercept = -1.5, color = 'orange', linetype = "dashed", size = 1.25, alpha = 0.8) +
+  geom_text(aes(as.Date("1980-12-01"), -1.5, label = "Severely dry", vjust = -1, hjust = -1.52)) +
+  geom_hline(yintercept = -2, color = 'red', linetype = "dashed", size = 1.25, alpha = 0.8) +
+  geom_text(aes(as.Date("1980-12-01"), -2, label = "Extremely dry", vjust = -1, hjust = -1.35)) +
+  #Modify the axis
+  scale_y_continuous(name = 'SPI-12', limits = c(-4.5, 4), breaks = seq(-4, 4, 1)) +
+  scale_x_date(name = 'Date', date_breaks = "2 years", date_labels = '%Y', limits = as.Date(c("1980-01-01", "2018-12-01")), expand = c(0,0)) +
+  scale_colour_grey(start = 0.9, end = 0.1) +
+  theme(axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 12))
+
+print(p)
+
+#Plot the single sub-basins spi as a "cloud", with the same colour, and the banabuiu
+#with another color that can emerge
+
+
 ggsave(
   filename = "./Data/Plot_table/spi_v1.1.png",
   plot = p,
@@ -65,24 +89,45 @@ ggsave(
   units = 'cm'
 )
 
-#Plot the single sub-basins spi as a "cloud", with the same colour, and the banabuiu
-#with another color that can emerge
 
 # Figure: VD mean comparison -------------------------------------------
 
 df <- data.frame(date = DCA_real[['Banabuiu']]$date, Real = DCA_real[['Banabuiu']]$WSI, noHDNR = DCA_noH[['Banabuiu']]$WSI)
 df <- reshape2::melt(df, id.vars = 'date', variable.name = 'Scenario')
 
+date_ranges <- data.frame(
+  from = as.Date(c("1981-01-01", "1982-01-01", "1992-01-01", "1997-01-01", "2001-01-01", "2005-01-01", "2007-01-01", "2010-01-01")),
+  to = as.Date(c("1981-12-01", "1983-12-01", "1993-12-01", "1998-12-01", "2002-12-01", "2005-12-01", "2007-12-01", "2018-12-01"))
+)
 
-p <- ggplot(df, aes(date, value)) + 
-      geom_line(aes(linetype = Scenario), alpha = 0.5, size = 1.25) +
-      xlab('Date') + ylab('VD') + 
+p <- ggplot() +
+  geom_line(data = df, aes(x = date, y = value, linetype = Scenario), alpha = 0.5, size = 1.25) +
+  geom_rect(data = date_ranges, aes(xmin = from, xmax = to, ymin = -Inf, ymax = Inf), alpha = 0.4) +
   scale_y_continuous(name = 'Volume Deficit (VD)', limits = c(-1, 1)) +
-  scale_x_date(name = 'Date', date_breaks = "2 years", date_labels = '%Y')
-plot(p)
+  scale_x_date(name = 'Date', date_breaks = "2 years", date_labels = '%Y', limits = as.Date(c("1980-01-01", "2018-12-01")), expand = c(0,0)) +
+  theme(axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 12))
 
-#Increment the size of the axis labels
+print(p)
 
 # Table: switch from phase to another? ------------------------------------
+
+
+
+# Preparation for Germano's plots -----------------------------------------
+
+write.table(DCA_real$Banabuiu$WSI, "wsi_real.txt", quote = FALSE, row.names = FALSE)
+write.table(DCA_noH$Banabuiu$WSI, "wsi_noH.txt", quote = FALSE, row.names = FALSE)
+write.table(DCA_real$Banabuiu$PI, "pi_real.txt", quote = FALSE, row.names = FALSE)
+
+#First event
+DCA_noH$Banabuiu$quadrant[DCA_noH$Banabuiu$date >= as.Date('1992-05-01') & DCA_noH$Banabuiu$date <= as.Date('1994-08-01')]
+DCA_real$Banabuiu$quadrant[DCA_real$Banabuiu$date >= as.Date('1992-05-01') & DCA_real$Banabuiu$date <= as.Date('1994-08-01')]
+#Second event
+DCA_noH$Banabuiu$quadrant[DCA_noH$Banabuiu$date >= as.Date('1997-05-01') & DCA_noH$Banabuiu$date <= as.Date('2002-06-01')]
+DCA_real$Banabuiu$quadrant[DCA_real$Banabuiu$date >= as.Date('1997-05-01') & DCA_real$Banabuiu$date <= as.Date('2002-06-01')]
+#Third event
+DCA_noH$Banabuiu$quadrant[DCA_noH$Banabuiu$date >= as.Date('2010-01-01') & DCA_noH$Banabuiu$date <= as.Date('2018-12-01')]
+DCA_real$Banabuiu$quadrant[DCA_real$Banabuiu$date >= as.Date('2010-01-01') & DCA_real$Banabuiu$date <= as.Date('2018-12-01')]
+
 
 

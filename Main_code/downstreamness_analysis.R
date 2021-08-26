@@ -21,7 +21,6 @@ get_mean_volume = function(df, df_class, df_vol, c){
   return(df_vol)
 }
 
-
 # Load the reservoirs shapefiles ----------------------------------------------
 
 HDNR <- readOGR("./Data/HDNR/HDNR.shp")
@@ -126,7 +125,7 @@ Dsv_nH <- data.frame(date = real_df$date)
 Dsv_nH$Dsv <- 0
 for(i in 1:nrow(Dsv_nH)){
   num <- sum(noH_df[i, 2:ncol(noH_df)]*dx_res)
-  den <- sum(noH_df[i, 2:ncol(noH_df)])
+  den <- sum(noH_df[i, 2:ncol(noH_df)])o
   Dsv_nH$Dsv[i] <- num/den
 }
 toc()
