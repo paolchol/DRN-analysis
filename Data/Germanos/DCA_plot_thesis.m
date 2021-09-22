@@ -11,32 +11,37 @@ clear all
 % % data_reserv_completa - date variable (in the format Y, M ,D)
  
 load('new_data.mat')
+
+%% Scale the VD
+%The VD is automatically scaled
+
+%a = -2.7;
+%b = 2.7;
+%spi = (b-a)*(spi - min(spi))/(max(spi) - min(spi)) + a;
+%vd_r017_nt = (b-a)*(vd_r017_nt - min(vd_r017_nt))/(max(vd_r017_nt) - min(vd_r017_nt)) + a;
+%vd_r017_ob = (b-a)*(vd_r017_ob - min(vd_r017_ob))/(max(vd_r017_ob) - min(vd_r017_ob)) + a;
+
 %% Drought Event 
 drought_event{1,1}=[datenum([1992 5 1]) datenum([1994 08 01])];  % First and last date of each drought event
 drought_event{2,1}=[datenum([1997 10 1]) datenum([2002 6 01])];  % First and last date of each drought event
 drought_event{3,1}=[datenum([2010 01 1]) datenum([2018 12 01])]; % First and last date of each drought event
 %% Selected dates of each drouhgt event to be ploted in the DCA with the marks (circles and stars that appear in the chart)
 % First drought event
-drought_event{1,2}(1,:)=[1992 05 01]; 
+drought_event{1,2}(1,:)=[1992 06 01]; 
 drought_event{1,2}(2,:)=[1993 06 01];
-drought_event{1,2}(3,:)=[1993 12 01];
-drought_event{1,2}(4,:)=[1994 08 01];
-drought_event{1,2}(5,:)=[1992 12 01];
+drought_event{1,2}(3,:)=[1994 08 01];
 % Second drought event
-drought_event{2,2}(1,:)=[1997 10 01];
-drought_event{2,2}(2,:)=[1998 07 01];
-drought_event{2,2}(3,:)=[1999 02 01];
-drought_event{2,2}(4,:)=[2000 09 01];
-drought_event{2,2}(5,:)=[2001 02 01];
-drought_event{2,2}(6,:)=[2002 06 01];
+drought_event{2,2}(1,:)=[2001 12 01];
+drought_event{2,2}(2,:)=[1998 05 01];
+drought_event{2,2}(3,:)=[1999 05 01];
+drought_event{2,2}(4,:)=[2001 08 01];
+drought_event{2,2}(5,:)=[2002 06 01];
 % Third drought event 
-drought_event{3,2}(1,:)=[2010 06 01];
-drought_event{3,2}(2,:)=[2011 12 01];
-drought_event{3,2}(3,:)=[2012 8 01];
-drought_event{3,2}(4,:)=[2013 8 01];
-drought_event{3,2}(5,:)=[2014 06 01];
-drought_event{3,2}(6,:)=[2016 06 01];
-drought_event{3,2}(7,:)=[2018 09 01];
+drought_event{3,2}(1,:)=[2010 12 01];
+drought_event{3,2}(2,:)=[2011 11 01];
+drought_event{3,2}(3,:)=[2015 09 01];
+drought_event{3,2}(4,:)=[2016 05 01];
+drought_event{3,2}(5,:)=[2018 03 01];
 %% Quadrant Color (Main RGB color of each Quadrant)
 cq1=[0 1 1];
 cq2=[1 1 0.0];
@@ -127,7 +132,7 @@ for k=1:3
 end
 
 %% Plot the selected dates of the drought events in the DCA color wheel
-[X,Y,COR]=plot_droughwheel(3.2,cq1,cq2,cq3,cq4,200,5);% Create the DCA color wheel
+[X,Y,COR]=plot_droughwheel(3, cq1,cq2,cq3,cq4,200,5);% Create the DCA color wheel
 % Basic configuration of the subplot
 nplotx=1;
 nploty=1;
@@ -142,8 +147,8 @@ for k=1:3
     figure('color',[1 1 1],'position',[10 10 800 800])
     subplot('position',PLOT{1,1})
     scatter(X,Y,20,COR,'filled'),hold on
-    plot([0 0],[-3.4 3.4],'w--','linewidth',2), hold on
-    plot([-3.4 3.4],[0 0.1],'w--','linewidth',2)
+    plot([0 0],[-3.2 3.2],'w--','linewidth',2), hold on
+    plot([-3.2 3.2],[0 0.1],'w--','linewidth',2)
     clear ev
     c=0;
     for ii=1:size(drought_event{k,2},1)

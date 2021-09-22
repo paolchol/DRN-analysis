@@ -90,7 +90,7 @@ for(i in 1:length(obj_names)){
 
 # Save the results --------------------------------------------------------
 
-list.save(DCA_real, "./Data/DCA/DCA_real.RData")
-list.save(DCA_noH, "./Data/DCA/DCA_noH.RData")
-list.save(DCA_obs, "./Data/DCA/DCA_obs.RData")
+list.save(DCA_real, "./Data/DCA/DCA_real2.RData")
+list.save(DCA_noH, "./Data/DCA/DCA_noH2.RData")
+list.save(DCA_obs, "./Data/DCA/DCA_obs2.RData")
 

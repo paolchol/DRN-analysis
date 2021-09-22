@@ -85,6 +85,10 @@ HDNR_vol <- apply(HDNR_vol[, 2:ncol(HDNR_vol)], 1, sum)
 res_r_vol <- apply(real_df[, 2:ncol(real_df)], 1, sum)
 res_nH_vol <- apply(noH_df[, 2:ncol(noH_df)], 1, sum)
 
+
+sum(HDNR_vol*mean(HDNR_df$dx)) + sum(res_r_vol*mean(res_df$dx)) / (sum(HDNR_vol) + sum(res_r_vol))
+
+
 df <- data.frame(date = Dsv_r$date, HDNR = HDNR_vol*100, C.Real = res_r_vol, C.noHDNR = res_nH_vol)
 df <- reshape2::melt(df, id.vars = 'date', variable.name = 'Legend')
 
@@ -108,11 +112,49 @@ df <- rbind(df2, df)
 df$vol[df$Legend == 'HDNR'] <- 1
 df$vol[df$Legend == 'C.Real'] <- 1
 df$vol[df$Legend == 'C.noHDNR'] <- 1
-
 df$vol[is.na(df$vol)] <- 0
 
-
-
 # Dsc vs Dsv --------------------------------------------------------------
+
+load("./Data/Downstreamness/Dsc_r.Rdata")
+load("./Data/Downstreamness/Dsc_nH.Rdata")
+
+load("./Data/Downstreamness/Dsv_r.Rdata")
+load("./Data/Downstreamness/Dsv_nH.Rdata")
+
+dt <- Dsv_r$date
+rdsc <- data.frame(date = dt, dsc = 0)
+nhdsc <- data.frame(date = dt, dsc = 0)
+
+for(i in 1:length(Dsc_r$date)){
+  rdsc$dsc[lubridate::year(rdsc$date) == Dsc_r$date[i]] <- Dsc_r$Dsc[i]
+  nhdsc$dsc[lubridate::year(nhdsc$date) == Dsc_nH$date[i]] <- Dsc_nH$Dsc[i]
+}
+
+df <- data.frame(
+  date = Dsv_r$date,
+  'Dsv-Real' = Dsv_r$Dsv,
+  'Dsv-noHDNR' = Dsv_nH$Dsv,
+  'Dsc-Real' = rdsc$dsc,
+  'Dsc-noHDNR' = nhdsc$dsc
+)
+df <- reshape2::melt(df, id.vars = 'date', variable.name = 'Legend')
+
+
+date_ranges <- data.frame(
+  from = as.Date(c("1981-01-01", "1982-01-01", "1992-01-01", "1997-01-01", "2001-01-01", "2005-01-01", "2007-01-01", "2010-01-01")),
+  to = as.Date(c("1981-12-01", "1983-12-01", "1993-12-01", "1998-12-01", "2002-12-01", "2005-12-01", "2007-12-01", "2018-12-01"))
+)
+
+p <- ggplot() +
+  geom_line(data = df, aes(x = date, y = value, colour = Legend), size = 1.5, alpha = 0.5) +
+  geom_rect(data = date_ranges, aes(xmin = from, xmax = to, ymin = -Inf, ymax = Inf), alpha = 0.4) +
+  scale_y_continuous(name = expression('D'['SV']), limits = c(25, 65)) +
+  scale_x_date(name = 'Date', date_breaks = "2 years", date_labels = '%Y', limits = as.Date(c("1980-01-01", "2018-12-01")), expand = c(0,0)) +
+  theme(axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 12))
+#facet_wrap(~vol, nrow = 2)
+print(p)
+
+
 
 

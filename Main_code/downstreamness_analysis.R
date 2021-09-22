@@ -12,8 +12,8 @@ get_mean_volume = function(df, df_class, df_vol, c){
   ss <- names(df_class)[2:ncol(df_class)]
   for(i in 1:length(ss)){
     s <- ss[i]
-    n <- sum(df$class == c & df$SubbasinID == s)
-    id_select <- df$id[which(df$class == c & df$SubbasinID == s)]
+    n <- sum(df$class == c & df$SubbasinID == as.numeric(s))
+    id_select <- df$id[which(df$class == c & df$SubbasinID == as.numeric(s))]
     
     vol <- df_class[s]/n
     df_vol[, names(df_vol) %in% id_select] <- vol
@@ -125,7 +125,7 @@ Dsv_nH <- data.frame(date = real_df$date)
 Dsv_nH$Dsv <- 0
 for(i in 1:nrow(Dsv_nH)){
   num <- sum(noH_df[i, 2:ncol(noH_df)]*dx_res)
-  den <- sum(noH_df[i, 2:ncol(noH_df)])o
+  den <- sum(noH_df[i, 2:ncol(noH_df)])
   Dsv_nH$Dsv[i] <- num/den
 }
 toc()
