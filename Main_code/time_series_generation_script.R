@@ -3,7 +3,7 @@
 # Setup ---------------------------------------------------------------
 
 setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis")
-path_export <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/input_WASA_gen/gen_2006"
+path_export <- "C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/input_WASA_gen/gen_2006"
 
 source("Libraries.R")
 source("Functions.R")
@@ -11,7 +11,7 @@ source("Functions_TG.R")
 source("Functions_DP.R")
 
 #Load the subbasins' shapefile
-path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/shapefile/Banabuiu"
+path<-"C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/shapefile/Banabuiu"
 subbasins<-readOGR(paste0(path,"/subbasins_cut_geomfix.shp"))
 
 # Precipitation FUNCEME ----------------------------------------------------

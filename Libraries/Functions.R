@@ -342,10 +342,36 @@ voronoipolygons = function(x, corners=NULL) {
 
 # Visualization -----------------------------------------------------------
 
-plot_df_interactive = function(df){
-  options(scipen = 999)
+plot_df_interactive = function(df, x = 'X', y = 'Value', t = 'Title', scip = TRUE,
+                               ret = FALSE){
+  if(scip) options(scipen = 999)
   df <- reshape2::melt(df, id.vars = 'date', variable.name = 'Columns')
   p <- ggplot(df, aes(date, value)) + geom_line(aes(colour = Columns), alpha = 0.5, size = 1.2) +
-    xlab('X') + ylab('Value')
-  ggplotly(p)
+    xlab(x) + ylab(y) + ggtitle(t)
+  if(ret) return(p) else ggplotly(p)
+}
+
+plot.save <- function(plot, 
+                      width = 800, 
+                      height = 500, 
+                      text.factor = 1, 
+                      filename = paste0(
+                        format(
+                          Sys.time(), 
+                          format = '%Y%m%d-%H%M%S'), '-Rplot.png'
+                      )
+) {
+#From:
+#https://stackoverflow.com/questions/26551359/r-ggsave-save-thumbnail-size-200-x-200-scaled-image/46296679
+  
+  dpi <- text.factor * 100
+  width.calc <- width / dpi
+  height.calc <- height / dpi
+  
+  ggsave(filename = filename,
+         dpi = dpi,
+         width = width.calc,
+         height = height.calc,
+         units = 'in',
+         plot = plot)
 }

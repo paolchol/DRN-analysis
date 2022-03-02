@@ -9,6 +9,8 @@ load('Ciclo_Seca')
 % vd_r017_ob - Volume Defict of the scenario with small reservoirs of the analyzed reservoir for the whole study period
 % CS - Structured variable that shows, for each drought event, in which quadrant of the DCA the pair of variables (SPI and VD) was in each month.
 % data_reserv_completa - date variable (in the format Y, M ,D)
+
+%load('AL_data.mat')
 %% Drought Event 
 drought_event{1,1}=[datenum([1992 5 1]) datenum([1994 08 01])];  % First and last date of each drought event
 drought_event{2,1}=[datenum([1997 10 1]) datenum([2002 6 01])];  % First and last date of each drought event

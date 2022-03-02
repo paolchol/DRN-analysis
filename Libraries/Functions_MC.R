@@ -1,7 +1,7 @@
 #Functions for Model calibration
 
 #Other functions needed
-setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
+setwd("C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
 source("./Libraries/Functions_TG.R")
 
 # Dataframe operations -----------------------------------------------------
@@ -249,6 +249,19 @@ RMSE_NRMSE = function(mod_df, obs_df, skip = 1, df = TRUE){
     report$NRMSE <- report$RMSE/(M - m)
   }
   return(report)
+}
+
+RMSE = function(m, o){
+  #m: model values
+  #o: observed values
+  sqrt(mean((m - o)^2, na.rm = TRUE))
+}
+
+NRMSE = function(m, o){
+  m <- min(o, na.rm = TRUE)
+  M <- max(o, na.rm = TRUE)
+  nrmse <- RMSE(m, o)/(M - m)
+  return(nrmse)
 }
 
 # Semi-automatic performance evaluation -----------------------------------

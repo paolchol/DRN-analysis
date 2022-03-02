@@ -1,0 +1,7 @@
+Specification of parameters for the reservoir size classes
+Reservoir_class-ID, maxlake0[m**3], lake_vol0_factor[-], lake_change[-], alpha_Molle[-], damk_Molle[-], damc_hrr[-], damd_hrr[-]
+1	5000	1	0	2.7	1500	12.5	1.5
+2	25000	1	0	2.7	1500	18.75	1.5
+3	50000	1	0	2.7	1500	25	1.5
+4	100000	1	0	2.7	1500	37.5	1.5
+5	500622.84	1	0	2.7	1500	50	1.5

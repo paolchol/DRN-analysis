@@ -1,6 +1,6 @@
 #Table construction
 
-setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
+setwd("C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
 
 
 HDNR <- readOGR("./Data/HDNR/HDNR.shp")
@@ -34,3 +34,5 @@ View(table)
 
 options(scipen = 0)
 write.table(table, file = "./Data/Plot_table/small_res_rip.txt", sep = "\t", quote = FALSE)
+
+

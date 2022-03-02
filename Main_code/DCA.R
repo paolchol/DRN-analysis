@@ -4,7 +4,7 @@
 # Script setup ------------------------------------------------------------
 
 #Directory and paths
-setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
+setwd("C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
 path_maxcap <- "./Inputs/Model_input/Base/Reservoir/reservoir.dat"
 
 source("./Libraries/Libraries.R")

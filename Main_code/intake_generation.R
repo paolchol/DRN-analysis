@@ -2,7 +2,7 @@
 
 # Setup -------------------------------------------------------------------
 
-setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
+setwd("C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
 
 source("./Libraries/Libraries.R")
 source("./Libraries/Functions.R")
@@ -12,7 +12,7 @@ path_export <- "./Inputs/Model_input/Model_enhancement/Time_series_reanalysis"
 
 # Load files --------------------------------------------------------------
 
-path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/waterdrawal_banabuiu_basin/renamed"
+path <- "C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/waterdrawal_banabuiu_basin/renamed"
 index_files <- data.frame(list.files(path = path, full.names = T, recursive = TRUE))
 names(index_files) <- "path"
 index_files$SubbasinID <- gsub("\\..*","",basename(index_files$path))
@@ -56,7 +56,11 @@ for(i in 1:length(withdrawal_list[])){
   names(withdrawal_df)[names(withdrawal_df) == "new"]<-index_files$SubbasinID[i]
 }
 
+#Save the dataframe for future use
+save(withdrawal_df, file = "./Inputs/General/withdrawal.RData")
+
 #Plot to check anomalies
+plot_df_interactive(withdrawal_df)
 # source("Functions_CO.R")
 # path_plot <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/Model_calibration"
 # plot_subbasins_df(withdrawal_df, y = "m3/s", label = "Withdrawal",
@@ -84,6 +88,13 @@ WASA_input_format_intake = function(df, header, path, name){
 
 #path_export <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/input_WASA_gen"
 h <- "# Specification of controlled release through reservoir's intake devices in [m3/s]\nDate,\tDoy,\t123,\t125,\t126,\t127,\t138,\t142,\t143,\t145,\t146,\t147,\t148,\t149,\t150,\t151,\t152,\t153,\t154,\t156,\t160"
+withdrawal_df_WASA <- WASA_input_format_intake(withdrawal_df, h, path_export, "intake")
+
+#For the AL scenarios ----
+
+path_export <- "C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes/Data/Scenarios/AL_only"
+withdrawal_df[,c(3:19, 21)] <- NULL
+h <- "# Specification of controlled release through reservoir's intake devices in [m3/s]\nDate,\tDoy,\t156"
 withdrawal_df_WASA <- WASA_input_format_intake(withdrawal_df, h, path_export, "intake")
 
 

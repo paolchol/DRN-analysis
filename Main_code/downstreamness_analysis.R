@@ -2,7 +2,7 @@
 
 # Setup -------------------------------------------------------------------
 
-setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
+setwd("C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
 
 source("./Libraries/Libraries.R")
 source("./Libraries/Functions.R")
@@ -108,6 +108,8 @@ save(HDNR_vol, file = "./Data/Downstreamness/HDNR_vol.Rdata")
 dx_hdnr <- HDNR_df$dx
 dx_res <- res_df$dx[order(res_df$subID)]
 
+mean(HDNR_df$dx)
+
 tic("Dsv real computation")
 Dsv_r <- data.frame(date = real_df$date)
 Dsv_r$Dsv <- 0
@@ -116,8 +118,15 @@ for(i in 1:nrow(Dsv_r)){
   den <- sum(HDNR_vol[i, 2:ncol(HDNR_vol)]) + sum(real_df[i, 2:ncol(real_df)])
   Dsv_r$Dsv[i] <- num/den
 }
+
+Dsv_r$noH <- 0
+for(i in 1:nrow(Dsv_r)){
+  num <- sum(real_df[i, 2:ncol(real_df)]*dx_res)
+  den <- sum(real_df[i, 2:ncol(real_df)])
+  Dsv_r$noH[i] <- num/den
+}
 toc()
-plot(Dsv_r)
+plot_df_interactive(Dsv_r)
 
 #NoH scenario
 tic("Dsv noH computation")
@@ -129,13 +138,13 @@ for(i in 1:nrow(Dsv_nH)){
   Dsv_nH$Dsv[i] <- num/den
 }
 toc()
-plot(Dsv_nH)
+plot_df_interactive(Dsv_nH)
 
 mean(Dsv_r$Dsv)
 mean(Dsv_nH$Dsv)
 
 #Save
-save(Dsv_r, file = "./Data/Downstreamness/Dsv_r.Rdata")
+save(Dsv_r, file = "./Data/Downstreamness/Dsv_r_v2.Rdata")
 save(Dsv_nH, file = "./Data/Downstreamness/Dsv_nH.Rdata")
 
 # Notes -------------------------------------------------------------------

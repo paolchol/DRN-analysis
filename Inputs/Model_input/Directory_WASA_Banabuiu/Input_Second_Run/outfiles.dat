@@ -1,0 +1,18 @@
+This files describe which output files are generated
+put any character before the files you don't want to be created
+daily_theta
+daily_qhorton
+daily_subsurface_runoff
+daily_total_overlandflow
+daily_water_sub-basin
+River_Sediment_total
+lake_inflow_r
+lake_outflow_r
+lake_volume_r
+lake_inflow
+lake_outflow
+lake_volume
+lake_watbal
+lake_retention
+res_watbal
+res_cav.out

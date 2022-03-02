@@ -1,0 +1,7 @@
+contains maximum dimensions of spatial units
+7	//maximum no. of landscape units in a sub-basins
+3	//maximum no. of terrain components in a landscape unit
+25	//maximum no. of soil vegetation components in a terrain component
+8	//maximum no. of horizons in a soil
+0	//maximum no. transpositions between sub-basins
+

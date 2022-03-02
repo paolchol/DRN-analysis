@@ -5,7 +5,7 @@
 # Setup the script ------------------------------------------------------------
 
 #Directory and paths
-setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
+setwd("C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
 path_scaling_in <- "./Inputs/Calibration/uncalibrated_scaling_factor.dat"
 path_scaling_out <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Input/Others" 
 path_WASA_input <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Input"
@@ -20,7 +20,7 @@ source("./Libraries/Functions_CO.R")
 source("./Libraries/Functions_MC.R")
 
 #Load the maximum capacities of the reservoirs
-path_maxcap <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Input/Reservoir/reservoir.dat"
+path_maxcap <- "./Inputs/Model_input/Base/Reservoir/reservoir.dat"
 reservoirs <- read.table(path_maxcap, skip = 2, sep = "\t")
 maxcap <- reservoirs[,c(1,5)]
 names(maxcap) <- c('ID','max')
@@ -74,14 +74,42 @@ noH_df <- monthly_scale(noH_df, f = sumx)
 #Save the dataframe
 save(noH_df, file = './Data/Scenarios/No_HDNR/nohdnr_volumes.RData')
 
-
 # Check the differences ----------------------------------------------------
 
 df <- data.frame(date = real_df$date, real = real_df["123"], noH = noH_df["123"])
 names(df) <- c("date", "real", "noH")
 plot_df_interactive(df)
 
+# AL only and + hdnr scenario generation --------------------------------------
 
+AL_extract = function(path, columns, IDs, m = FALSE){
+  filepath <- paste0(path, "/res_156_watbal.out")
+  date <- create_date_vector(1980, 2018)
+  
+  ALvol <- read.table(filepath, skip = 3, header = FALSE)
+  names(ALvol) <- columns
+  ALvol <- date_col_WASA_out(ALvol)
+  listt <- list(ALvol)
+  ALvol <- create_main_dataframe(date, listt, IDs, timecol = 18, datacol = 17)
+  if(m) ALvol <- monthly_scale(ALvol, f = sumx)
+  names(ALvol) <- c("date", "v156")
+  return(ALvol)
+}
 
+#Load AL volume for the two new scenarios
+pathAL_only <- "./Data/Scenarios/AL_only/Model_output_intake"
+pathAL_HDNR <- "./Data/Scenarios/AL_HDNR/Model_output_intake"
+columns<-c("Subasin-ID", "year", "day", "hour", "qlateral",
+           "transposition", "inflow", "evap",
+           "prec", "intake", "overflow",
+           "qbottom", "qout", "withdrawal", "elevation", "area", "volume")
 
+ALonly <- AL_extract(pathAL_only, columns, IDs)
+save(ALonly, file = './Data/Scenarios/AL_only/ALonly_daily.RData')
+ALonly <- monthly_scale(ALonly, f = sumx)
+save(ALonly, file = './Data/Scenarios/AL_only/ALonly_volumes.RData')
 
+ALhdnr <- AL_extract(pathAL_HDNR, columns, IDs)
+save(ALhdnr, file = './Data/Scenarios/AL_HDNR/ALhdnr_daily.RData')
+ALhdnr <- monthly_scale(ALhdnr, f = sumx)
+save(ALhdnr, file = './Data/Scenarios/AL_HDNR/ALhdnr_volumes.RData')
