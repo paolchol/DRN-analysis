@@ -178,7 +178,7 @@ dt <- Dsv_r$date
 rdsc <- data.frame(date = dt, dsc = 0)
 nhdsc <- data.frame(date = dt, dsc = 0)
 
-for(i in 1:length(Dsc_r$date)){
+for(i in seq_len(length(Dsc_r$date))){
   rdsc$dsc[lubridate::year(rdsc$date) == Dsc_r$date[i]] <- Dsc_r$Dsc[i]
   nhdsc$dsc[lubridate::year(nhdsc$date) == Dsc_nH$date[i]] <- Dsc_nH$Dsc[i]
 }
