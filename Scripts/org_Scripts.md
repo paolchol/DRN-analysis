@@ -16,7 +16,3 @@ Ora è diviso in cartelle
 ## Supporting code
 
 ## Libraries
-
-
-
-
