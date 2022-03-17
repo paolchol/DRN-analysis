@@ -2,16 +2,16 @@
 
 # Setup ---------------------------------------------------------------
 
-setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis")
+setwd("C:/Directory_thesis_codes")
 path_export <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/input_WASA_gen/processed"
 
-source("Libraries.R")
-source("Functions.R")
-source("Functions_DP.R")
+source("./R/Libraries/Libraries.R")
+source("./R/Libraries/Functions.R")
+source("./R/Libraries/Functions_DP.R")
 
-starting_date<-"1990-01-01"
-ending_date<-"2018-12-31"
-time_index<-seq(as.Date(starting_date),as.Date(ending_date),by="days")
+starting_date <- "1990-01-01"
+ending_date <- "2018-12-31"
+time_index <- seq(as.Date(starting_date), as.Date(ending_date),by="days")
 
 # Load the generated time series ------------------------------------------
 #Load, assign the column names and change the date format
