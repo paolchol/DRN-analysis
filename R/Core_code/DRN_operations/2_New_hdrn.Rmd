@@ -1,5 +1,5 @@
 ---
-title: "Creation of the new HDRN shapefile with capacities associated"
+title: "Creation of a DRN shapefile with associated capacities"
 author: "Paolo Colombo"
 date: "26/4/2021"
 output: html_document
@@ -8,10 +8,10 @@ output: html_document
 # Libraries and functions
 
 ```{r libraries}
-setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis")
+setwd("C:/Directory_thesis_codes")
 
-source("Libraries.R")
-source("Functions.R")
+source("./R/Libraries/Libraries.R")
+source("./R/Libraries/Functions.R")
 ```
 
 # Cleaning of the Global Water shapefile
@@ -21,20 +21,18 @@ The Global Water was vectorialized from a raster using QGIS. Since it was distri
 ## Load of the shapefile
 
 ```{r}
-setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data")
-
-global_water<-readOGR(dsn = "./Global_surface_water/shape/cut_merged.shp")
+global_water <- readOGR(dsn = "./Data/DRN/Global_surface_water/cut_merged.shp")
 ```
 
 ## Remove the big reservoirs from Global Water
 
 ```{r}
-path<-"C:/Thesis_fortran/WASA/shapefile/Banabuiu"
-main_resI<-st_read(paste0(path,"/mainreservoirsI_cut_ref.shp"))
-main_resII<-st_read(paste0(path,"/mainreservoirsII_cut_ref.shp"))
+path <- "C:/Thesis_fortran/WASA/shapefile/Banabuiu"
+main_resI <- st_read(paste0(path, "/mainreservoirsI_cut_ref.shp"))
+main_resII <- st_read(paste0(path, "/mainreservoirsII_cut_ref.shp"))
 
-threshold<-min(main_resI$AREA)
-glob_wat_cut<-global_water[which(global_water$area_geom < threshold),]
+threshold <- min(main_resI$AREA)
+glob_wat_cut <- global_water[which(global_water$area_geom < threshold),]
 
 ```
 
