@@ -3,7 +3,7 @@
 # Setup ---------------------------------------------------------------
 
 setwd("C:/Directory_thesis_codes")
-path_export <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/input_WASA_gen/processed"
+path_export <- "./Data/Generated/WASA_time_series_input"
 
 source("./R/Libraries/Libraries.R")
 source("./R/Libraries/Functions.R")
@@ -11,12 +11,12 @@ source("./R/Libraries/Functions_DP.R")
 
 starting_date <- "1990-01-01"
 ending_date <- "2018-12-31"
-time_index <- seq(as.Date(starting_date), as.Date(ending_date),by="days")
+time_index <- seq(as.Date(starting_date), as.Date(ending_date), by = "days")
 
 # Load the generated time series ------------------------------------------
 #Load, assign the column names and change the date format
 
-path_import <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/input_WASA_gen"
+path_import <- "./Data/Generated/WASA_time_series_input/unprocessed"
 columns <- c("date", "doy", 123, 125, 126, 127, 134, 137, 138, 139, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160)
 
 prec <- read.table(paste0(path_import, "/precipitation_FUNCEME_1706.dat"), skip = 3)
@@ -40,7 +40,6 @@ rad_F$date<-time_index
 rad_I <- read.table(paste0(path_import, "/radiation_INMET_1706.dat"), skip = 3)
 names(rad_I) <- columns
 rad_I$date<-time_index
-
 
 # Outliers removal -------------------------------------
 
