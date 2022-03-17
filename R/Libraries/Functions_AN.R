@@ -3,9 +3,9 @@
 
 # Drought Cycle Analysis --------------------------------------------------
 
-meanx = function(x) mean(x, na.rm = TRUE)
+meanx <- function(x) mean(x, na.rm = TRUE)
 
-VD = function(df, maxcap, skip = 1){
+VD <- function(df, maxcap, skip = 1){
   skip <- skip + 1
   
   VD <- data.frame(date = df$date)
@@ -23,7 +23,7 @@ quadrant_attribution = function(PI, WSI, dates){
   DCA <- data.frame(dates, PI, WSI)
   names(DCA) <- c("date","PI", "WSI")
   DCA$quadrant <- NA
-  for(i in 1:nrow(DCA)){
+  for(i in seq_len(nrow(DCA))){
     if(!is.na(DCA$PI[i]) & !is.na(DCA$WSI[i])){
       if(DCA$PI[i] > 0 & DCA$WSI[i] > 0)      DCA$quadrant[i] <- 1
       else if(DCA$PI[i] < 0 & DCA$WSI[i] > 0) DCA$quadrant[i] <- 2
@@ -33,4 +33,3 @@ quadrant_attribution = function(PI, WSI, dates){
   }
   return(DCA)
 }
-

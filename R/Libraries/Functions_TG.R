@@ -1,31 +1,31 @@
 #Functions to execute the time series generation
 
-create_date_vector = function(start_y, end_y, start_m = 01, end_m = 12, start_d = 01,
-                              end_d = 31){
-  start<-paste0(start_d, "/0",start_m,"/",start_y)
-  end<-paste0(end_d,"/",end_m,"/",end_y)
-  date<-seq(as.Date(start,"%d/%m/%Y"), as.Date(end,"%d/%m/%Y"), by="days")
+create_date_vector <- function(start_y, end_y, start_m = 01, end_m = 12,
+                              start_d = 01, end_d = 31) {
+  start <- paste0(start_d, "/0", start_m, "/", start_y)
+  end <- paste0(end_d, "/", end_m, "/", end_y)
+  date <- seq(as.Date(start, "%d/%m/%Y"), as.Date(end, "%d/%m/%Y"), by = "days")
   return(date)
 }
 
-create_data_list = function(path, names, skip = 6, f = read.table, s = ""){
+create_data_list <- function(path, names, skip = 6, f = read.table, s = "") {
   #skip = 6 for the FUNCEME files in .txt
   #skip = 1 for the volume observation values in .csv
   #skip = 3 for WASA input files
-  
-  files<-list.files(path=path,full.names = T,recursive = TRUE)
-  data_list<-list()
-  for(i in 1:length(files)){
-    tryCatch(data_list[[i]]<-f(files[i],header = FALSE,
+
+  files <- list.files(path = path, full.names = T, recursive = TRUE)
+  data_list <- list()
+  for (i in seq_len(length(files))) {
+    tryCatch(data_list[[i]] <- f(files[i], header = FALSE,
                                  sep = s,col.names = names, skip = skip),
-             error=function(e){cat("ERROR :",conditionMessage(e),i, "\n")})
+             error = function(e) {cat("ERROR :", conditionMessage(e), i, "\n")})
   }
   return(list(files, data_list))
 }
 
-create_position_vector = function(files){
+create_position_vector <- function(files){
   #Positions vector
-  for(i in 1:length(files)){
+  for(i in seq_len(length(files))){
     lines<-readLines(files[i],n = 6)
     ID<-as.numeric(unlist(strsplit(lines[1], ":"))[2])
     name<-unlist(strsplit(lines[2], ":"))[2]
@@ -39,33 +39,35 @@ create_position_vector = function(files){
   return(positions)
 }
 
-add_date_column = function(data_list, complete = FALSE){
+add_date_column <- function(data_list, complete = FALSE){
   #Creates a date column inside each station dataframe
-  if(!complete){
-    for(i in 1:length(data_list[])){
-      d<-as.Date(paste0(data_list[[i]]$year,"-",data_list[[i]]$month,"-",
+  if (!complete) {
+    for(i in seq_len(length(data_list[]))){
+      d <- as.Date(paste0(data_list[[i]]$year,"-",data_list[[i]]$month,"-",
                         data_list[[i]]$day))
       data_list[[i]]$date<-d
     }
   }else{
-    for(i in 1:length(data_list[])){
+    for(i in seq_len(length(data_list[]))){
       data_list[[i]]$date <- as.Date(data_list[[i]]$date, "%Y-%m-%d")
     }
   }
   return(data_list)
 }
 
-create_main_dataframe = function(date, data_list, positions, timecol = 5, datacol = 4){
+create_main_dataframe <- function(date, data_list, positions,
+                                  timecol = 5, datacol = 4){
   main_dataframe<-data.frame(date)
   index<-matrix(NA,ncol = 2,nrow = length(data_list[]))
   j<-1
   
-  for(i in 1:length(data_list[])){
+  for(i in seq_len(length(data_list[]))){
     check<-data_list[[i]][which(data_list[[i]]$date %in% main_dataframe$date),]
     if(dim(check)[1]!=0){
-      #main_dataframe$new<-rep(NA,nrow(main_dataframe))
-      new_v<-sistemadati_DCA(vettore = data_list[[i]],lung = nrow(main_dataframe),g = date,
-                             coltime = timecol, coldata = datacol)
+      # main_dataframe$new<-rep(NA,nrow(main_dataframe))
+      new_v <- sistemadati_DCA(vettore = data_list[[i]],
+                              lung = nrow(main_dataframe),
+                              g = date, coltime = timecol, coldata = datacol)
       main_dataframe$new<-new_v[,2]
       names(main_dataframe)[names(main_dataframe) == "new"]<-positions$ID[i]
     }else{
@@ -74,14 +76,14 @@ create_main_dataframe = function(date, data_list, positions, timecol = 5, dataco
       j<-j+1
     }
   }
-  index_clean<-subset(index, (!is.na(index[,1])) & (!is.na(index[,2])))
   return(main_dataframe)
-  #return(main_dataframe, index_clean)
+  # index_clean <- subset(index, (!is.na(index[,1])) & (!is.na(index[,2])))
+  # return(main_dataframe, index_clean)
   #Uncomment it to see if there are stations that have been removed
   #because they don't have data in the specified date range
 }
 
-WASA_input_format = function(main_df, output, header, path, name){
+WASA_input_format <- function(main_df, output, header, path, name){
   year<-lubridate::year(main_df$date)
   month<-lubridate::month(main_df$date)
   month[which(month < 10)]<-paste0("0",month[which(month < 10)])

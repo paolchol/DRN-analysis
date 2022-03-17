@@ -3,22 +3,22 @@
 # Setup ---------------------------------------------------------------
 
 setwd("C:/Directory_thesis_codes")
-path_export <- "C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/time_series_generation/input_WASA_gen/gen_2006"
+path_export <- "./Data/Generated/WASA_time_series"
 
-source("Libraries.R")
-source("Functions.R")
-source("Functions_TG.R")
-source("Functions_DP.R")
+source("./R/Libraries/Libraries.R")
+source("./R/Libraries/Functions.R")
+source("./R/Libraries/Functions_TG.R")
+source("./R/Libraries/Functions_DP.R")
 
 #Load the subbasins' shapefile
-path <- "C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/shapefile/Banabuiu"
+path <- "./Data/Shapefile"
 subbasins <- readOGR(paste0(path, "/subbasins_cut_geomfix.shp"))
 
 # Precipitation FUNCEME ----------------------------------------------------
 
 #Load the stations
-path = "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/meteorological_stations_ceara/Meteorological_stations_FUNCEME/precipitation_subset"
-prec_input = create_data_list(path, c("year","month","day","data"))
+path <- "./Data/Meteorological_data/precipitation_subset_FUNCEME"
+prec_input <- create_data_list(path, c("year", "month", "day", "data"))
 
 #Remove anomalous stations (more information: "prec_out_rem.R")
 n <- find_anomalous_stations(prec_input)
@@ -42,11 +42,10 @@ output_prec <- WASA_input_format(prec_df, output_prec, header = h, path = path_e
 write.table(output_prec,paste0(path_export,"/output_prec_FUNCEME_save_2006.txt"),quote = FALSE,sep="\t",row.names = FALSE)
 toc() #2h 55 minutes
 
-
 # Temperature INMET -------------------------------------------------------
 
-path = "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/meteorological_stations_ceara/Meteorological_stations_FUNCEME/t2m_INMET"
-temp_input = create_data_list(path, c("year","month","day","data"))
+path <- "./Data/Meteorological_data/t2m_INMET"
+temp_input <- create_data_list(path, c("year", "month", "day", "data"))
 
 #Remove anomalous stations (more information: "stations_outlier_removal.R")
 n <- find_anomalous_stations(temp_input)
@@ -55,8 +54,9 @@ date <- create_date_vector(2005, 2018)
 temp_pos <- create_position_vector(temp_input[[1]])
 temp_input[[2]] <- add_date_column(temp_input[[2]])
 temp_df <- create_main_dataframe(date, temp_input[[2]], temp_pos)
-#Remove other anomalous stations from the dataframe (more information: "stations_outlier_removal.R")
-temp_df$St168<-NULL; temp_df$St590<-NULL
+#Remove other anomalous stations from the dataframe
+# (more information: "stations_outlier_removal.R")
+temp_df$St168 <- NULL; temp_df$St590 <- NULL
 #Remove outliers (more information: "stations_outlier_removal.R")
 num_iter <- 2
 for(n in 1:num_iter)  temp_df <- remove_outlier_3sd(temp_df)
@@ -65,15 +65,16 @@ tic("Temperature INMET - Interpolation")
 output_temp <- create_time_series_Wmean(main_dataframe = temp_df,
                                         positions = temp_pos,
                                         layer = subbasins)
-h = "Daily average temperature (in degree Celcius) for each subasin, ordered according Map-IDs\nDate No. of days Subasin-ID\n0 0 123 125 126 127 134 137 138 139 142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157 158 159 160"
+h <- "Daily average temperature (in degree Celcius) for each subasin, ordered according Map-IDs\nDate No. of days Subasin-ID\n0 0 123 125 126 127 134 137 138 139 142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157 158 159 160" # nolint
 output_temp <- WASA_input_format(temp_df, output_temp, header = h, path = path_export, name = "temperature_INMET_2006")
-write.table(output_temp,paste0(path_export,"/output_temp_INMET_save_2006.txt"),quote = FALSE,sep="\t",row.names = FALSE)
+write.table(output_temp, paste0(path_export, "/output_temp_INMET_save_2006.txt"),
+            quote = FALSE, sep = "\t", row.names = FALSE)
 toc() #19 minutes
 
 # Temperature FUNCEME -----------------------------------------------------
 
-path = "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/meteorological_stations_ceara/Meteorological_stations_FUNCEME/t2m_FUNCEME"
-temp_input = create_data_list(path, c("year","month","day","data"))
+path <- "./Data/Meteorological_data/t2m_FUNCEME"
+temp_input <- create_data_list(path, c("year", "month", "day", "data"))
 
 #Remove anomalous stations (more information: "stations_outlier_removal.R")
 n <- find_anomalous_stations(temp_input)
@@ -99,10 +100,11 @@ toc() #23 minutes
 
 # Humidity INMET ----------------------------------------------------------
 
-path = "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/meteorological_stations_ceara/Meteorological_stations_FUNCEME/humidity_subset/INMET"
-hum_input = create_data_list(path, c("year","month","day","data"))
+path <- "./Data/Meteorological_data/humidity_subset_INMET"
+hum_input <- create_data_list(path, c("year", "month", "day", "data"))
 
-#Remove anomalous stations and outliers (more information: "stations_outlier_removal.R")
+#Remove anomalous stations and outliers
+# (more information: "stations_outlier_removal.R")
 n <- find_anomalous_stations(hum_input)
 if(n > 0) hum_input <- remove_anomalous_stations(hum_input)
 num_iter <- 1
@@ -121,20 +123,21 @@ output_hum <- WASA_input_format(main_dataframe_hum, output_hum, header = h, path
 write.table(output_hum,paste0(path_export,"/output_hum_INMET_save_2006.txt"),quote = FALSE,sep="\t",row.names = FALSE)
 toc() #14 minutes
 
-
 # Humidity FUNCEME --------------------------------------------------------
 
-path = "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/meteorological_stations_ceara/Meteorological_stations_FUNCEME/humidity_subset/FUNCEME"
-hum_input = create_data_list(path, c("year","month","day","data"))
+path <- "./Data/Meteorological_data/humidity_subset_FUNCEME"
+hum_input <- create_data_list(path, c("year", "month", "day", "data"))
 
-#Remove anomalous stations and outliers (more information: "stations_outlier_removal.R")
+#Remove anomalous stations and outliers
+# (more information: "stations_outlier_removal.R")
 n <- find_anomalous_stations(hum_input)
 if(n > 0) hum_input <- remove_anomalous_stations(hum_input)
 date <- create_date_vector(2005, 2018)
 hum_pos <- create_position_vector(hum_input[[1]])
 hum_input[[2]] <- add_date_column(hum_input[[2]])
 hum_df <- create_main_dataframe(date, hum_input[[2]], hum_pos)
-#Remove other anomalous stations from the dataframe (more information: "stations_outlier_removal.R")
+#Remove other anomalous stations from the dataframe
+# (more information: "stations_outlier_removal.R")
 hum_df$St19 <- NULL; hum_df$St44 <- NULL; hum_df$St55 <- NULL; hum_df$St81 <- NULL
 #Remove outliers (more information: "stations_outlier_removal.R")
 num_iter <- 3
@@ -149,14 +152,14 @@ output_hum <- WASA_input_format(hum_df, output_hum, header = h, path = path_expo
 write.table(output_hum,paste0(path_export,"/output_hum_FUNCEME_save_2006.txt"),quote = FALSE,sep="\t",row.names = FALSE)
 toc() #28 minutes
 
-
 # Radiation INMET ---------------------------------------------------------
 
 #Load the stations
-path = "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/meteorological_stations_ceara/Meteorological_stations_FUNCEME/radiation_KJ_subset/INMET"
-rad_input = create_data_list(path, c("year","month","day","data"))
+path <- "./Data/Meteorological_data/radiation_KJ_subset_INMET"
+rad_input <- create_data_list(path, c("year", "month", "day", "data"))
 
-#Remove anomalous stations and outliers (more information: "stations_outlier_removal.R")
+#Remove anomalous stations and outliers
+# (more information: "stations_outlier_removal.R")
 n <- find_anomalous_stations(rad_input)
 if(n > 0) rad_input <- remove_anomalous_stations(rad_input)
 num_iter <- 3
