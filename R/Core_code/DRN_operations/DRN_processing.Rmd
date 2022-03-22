@@ -1,0 +1,340 @@
+---
+title: "Creation of a DRN shapefile with associated capacities"
+author: "Paolo Colombo"
+date: "26/4/2021"
+output: html_document
+---
+
+# Libraries and functions
+
+```{r libraries}
+setwd("C:/Directory_thesis_codes")
+
+source("./R/Libraries/Libraries.R")
+source("./R/Libraries/Functions.R")
+```
+
+# Cleaning of the Global Water shapefile
+
+The Global Water was vectorialized from a raster using QGIS. Since it was distributed over two rasters, they were merged and then cut over the Banabuiu area.
+
+## Load of the shapefile
+
+```{r}
+global_water <- readOGR(dsn = "./Data/DRN/Global_surface_water/cut_merged.shp")
+```
+
+## Remove the big reservoirs from Global Water
+
+```{r}
+main_resI <- st_read("./Data/Shapefile/Reservoirs/mainreservoirsI_cut_ref.shp")
+main_resII <- st_read("./Data/Shapefile/Reservoirs/mainreservoirsII_cut_ref.shp")
+
+threshold <- min(main_resI$AREA)
+glob_wat_cut <- global_water[which(global_water$area_geom < threshold),]
+```
+
+## Remove DN = 0 from Global Water
+
+DN = 1 means that in that element water is present. Removing the shapes which present DN = 0 is then useful for the next step in QGIS (the NNJoin), so that the DRN points will not be matched with the areas which don't present water in them.
+
+```{r}
+glob_wat_cut <- glob_wat_cut[which(glob_wat_cut$DN == 1),]
+```
+
+## Export the "clean" shapefile
+
+```{r}
+writeOGR(glob_wat_cut, dsn = "./Global_surface_water", layer = "global_wat_cut",
+         driver = "ESRI Shapefile" )
+```
+
+# DRN update
+
+The Global Water shapefile has been joined to the FUNCEME reservoirs shapefile. In the joined output, each reservoir has an associated area. There are reservoirs that are associated to the same water body in the Global Water shapefile, meaning that there wasn't the same number of water bodies in the Global Water shapefile as the number of small reservoirs present in the FUNCEME shapefile. The duplicate with the highest distance from the water body will be assigned to the lowest class of reservoirs, following the hypothesis that if it is not present in the Global Water map, it was too small to be detected.
+
+## Load of the new shapefile
+
+```{r load DRN to update}
+DRN_update <- readOGR(dsn = "./DRN/DRN_update_area_ID.shp")
+```
+
+## Calculate capacities and define the reservoir classes
+
+```{r Molle relationship}
+# Molle area-volume relationship
+#Volume = k*(Area/(a*k))^(a/(a-1))
+#Area = a*k*(Volume/k)^((a-1)/a)
+
+k <- damk_Molle <- 1500
+a <- alpha_Molle <- 2.7
+DRN_update$capacity <- k*(DRN_update$join_area_/(a*k))^(a/(a-1)) #m3
+
+#Reservoirs classes definition
+#From Mamede et al. 2018
+res_class<-c(
+              5000, #m3
+              25000,
+              50000,
+              100000,
+              max(DRN_update$capacity)+1
+            )
+```
+
+## Filtering of the duplicates
+
+Find the DRN's reservoirs (id) that present the same Global Water reservoir (join_fid). To the one with the highest distance, associate the capacity of the smallest reservoir class
+
+```{r associate lowest res class (m1)}
+#First method: associate the lowest class to the points with no associate global water
+#1. Find the duplicates
+#2. Select the point with the lowest distance
+#3. To the points with a distance higher than the minimum, associate the lowest reservoir class
+
+tic("Lowest reservoir class to points with no associate global water")
+subset <- DRN_update[duplicated(DRN_update$join_fid),]
+for(i in seq_len(length(subset$join_fid))){
+  #Take the first duplicate ID
+  check1 <- subset$join_fid[i] 
+  #Take the minimum distance from the points with the same associated ID
+  check2 <- min(DRN_update$distance[DRN_update$join_fid %in% check1])
+  #Take the point associated to the minimum distance
+  check3 <- DRN_update$id[which(DRN_update$join_fid %in% check1 & DRN_update$distance == check2)]
+  
+  #Associate the lowest reservoir class to the points with distance higher
+  #than check2
+  DRN_update$capacity[which(DRN_update$join_fid %in% check1
+                             & DRN_update$distance > check2
+                             & DRN_update$id != check3)] <- res_class[1] - 0.1
+}
+remove(subset, check1, check2, check3)
+toc()
+
+summary(DRN_update@data)
+
+#Export the updated DRN
+# writeOGR(DRN_update,dsn = "./DRN", layer = "DRN_afterR_v1",
+#          driver = "ESRI Shapefile")
+```
+
+```{r remove (m2)}
+#Second method: remove the points with no associate global water
+#1. Find the duplicates
+#2. Select the point with the lowest distance
+#3. Remove the points with a distance higher than the minimum
+
+tic("Removal of points with no associated global water")
+subset <- DRN_update[duplicated(DRN_update$join_fid),] #Finds the duplicates
+for(i in seq_len(length(subset$join_fid))){
+  #Take the first duplicate ID
+  check1 <- subset$join_fid[i] 
+  #Take the minimum distance from the points with the same associated ID
+  check2 <- min(DRN_update$distance[DRN_update$join_fid %in% check1])
+  #Take the point associated to the minimum distance
+  check3 <- DRN_update$id[which(DRN_update$join_fid %in% check1 & DRN_update$distance == check2)]
+  
+  #Remove the duplicate points with a distance higher than check2
+  DRN_update <- DRN_update[which(!(DRN_update$join_fid %in% check1
+                                      & DRN_update$distance > check2
+                                      & DRN_update$id != check3)),]
+}
+remove(subset, check1, check2, check3)
+toc()
+
+summary(DRN_update@data)
+
+#Export the updated DRN
+# writeOGR(DRN_update,dsn = "./DRN", layer = "DRN_afterR_v2",
+#          driver = "ESRI Shapefile" )
+```
+
+## Classification
+
+On QGIS, visualized that none of the reservoirs in the highest class are the same as the main reservoirs.
+
+```{r classification}
+#Do the classification in the same way as the other script
+
+#Load the updated DRN
+#Method 1 (Unidentified reservoirs associated to the lowest class)
+# path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/DRN/DRN_afterR_v1.shp"
+#Method 2 (Unidentified reservoirs removed)
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/DRN/DRN_afterR_v2.shp"
+
+DRN_update<-readOGR(path)
+
+#Dataframe creation: first column SubbasinID, others number of reservoirs in the classes
+path<-"C:/Thesis_fortran/WASA/shapefile/Banabuiu"
+subbasins<-st_read(paste0(path,"/subbasins_cut.shp"))
+count_class <- subbasins %>%
+                filter(!is.na(SubbasinID)) %>%
+                group_by(SubbasinID) %>%
+                summarize()
+count_class <- data.frame(count_class$SubbasinID)
+names(count_class) <- "SubbasinID"
+
+for(i in 1:5){
+  if(i != 1){
+    c <- DRN_update@data %>%
+          filter(!is.na(SubbasinID)) %>%
+          group_by(SubbasinID) %>%
+      #   filter(capacity <= res_class[i+1] & capacity > res_class[i]) %>%
+      #for Mamede classification: below
+          filter(capacity < res_class[i] & capacity >= res_class[i-1]) %>%
+          summarize(count=n())
+  }else{
+    c <- DRN_update@data %>%
+          filter(!is.na(SubbasinID)) %>%
+          group_by(SubbasinID) %>%
+          #filter(capacity <= res_class[i+1]) %>%
+      #for Mamede classification: below
+          filter(capacity < res_class[i]) %>%
+          summarize(count=n())
+  }
+  for(a in seq_len(length(c$SubbasinID))){
+    for(b in seq_len(length(count_class$SubbasinID))){
+        if(c$SubbasinID[a] == count_class$SubbasinID[b]) count_class[b,i+1] <- c$count[a]
+    }
+  }
+}
+names(count_class) <- c("SubbasinID","class1","class2","class3","class4","class5")
+count_class[is.na(count_class)] <- 0
+
+#Class ripartition
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/gen_files"
+count_class<-read.table(paste0(path, "/lake_number_newDRN_met2.dat"), skip = 2)
+
+for(i in 2:6){
+  print(paste0("Percentage of resevoirs in Class ",i-1))
+  print(paste0(round(sum(count_class[,i])/sum(count_class[,2:6]),digits = 3)*100," %"))
+}
+```
+
+### Creation of lake.dat
+
+```{r lake.dat}
+#Create the dataframe
+par_class<-data.frame(seq(1,5,1),     #Reservoir_class-ID
+                      round(res_class,2),      #maxlake0
+                      rep(1,5),       #lake_vol0_factor
+                      rep(0,5),       #lake_change: this parameter can be changed in the calibration phase
+                      rep(alpha_Molle,5),   
+                      rep(damk_Molle,5),
+                      c(12.5,18.75,25,37.5,50),       #damc_hrr
+                      rep(1.5,5)      #damd_hrr
+                      )
+names(par_class)<-c("Reservoir_class-ID", "maxlake0_m3", "lake_vol0_factor", "lake_change", "alpha_Molle", "damk_Molle", "damc_hrr", "damd_hrr")
+View(par_class)
+
+#Save it
+options(scipen = 999)
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/gen_files"
+my.write(par_class,file=paste0(path,"/lake.dat"),
+         header = "Specification of parameters for the reservoir size classes\nReservoir_class-ID, maxlake0[m**3], lake_vol0_factor[-], lake_change[-], alpha_Molle[-], damk_Molle[-], damc_hrr[-], damd_hrr[-]",f = write.table)
+options(scipen = 0)
+```
+
+### Creation of lake_number.dat
+
+```{r lake_number}
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/gen_files"
+my.write(count_class,file=paste0(path,"/lake_number_newDRN_met2.dat"),
+         header = "Specification of total number of reservoirs in the size classes\nSub-basin-ID, acud[-] (five reservoir size classes)",f = write.table)
+```
+
+### Creation of lake_maxvol.dat
+
+For each subbasin, a representative reservoir in each class can be identified, and its starting volume can be provided to WASA in the lake_maxvol.dat file. To identify the representative reservoir for each class, take the median capacity in each reservoir class, for each subbasin.
+In the gen_files folder a lake_maxvol computed with the mean can also be found.
+
+```{r representative reservoirs}
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis"
+res<-read.table(paste0(path,"/reservoir_name_ID.txt"), header = TRUE, sep = "\t")
+
+median_class<- data.frame(res$SubbasinID)
+names(median_class) <- "SubbasinID"
+
+for(i in 1:5){
+  if(i != 1){
+    c <- DRN_update@data %>%
+          filter(!is.na(SubbasinID)) %>%
+          group_by(SubbasinID) %>%
+      #   filter(capacity <= res_class[i+1] & capacity > res_class[i]) %>%
+      #for Mamede classification: below
+          filter(capacity < res_class[i] & capacity >= res_class[i-1]) %>%
+          summarize(median(capacity))
+  }else{
+    c <- DRN_update@data %>%
+          filter(!is.na(SubbasinID)) %>%
+          group_by(SubbasinID) %>%
+          #filter(capacity <= res_class[i+1]) %>%
+      #for Mamede classification: below
+          filter(capacity < res_class[i]) %>%
+          summarize(median(capacity))
+  }
+  for(a in 1:length(c$SubbasinID)){
+    for(b in 1:length(median_class$SubbasinID)){
+        if(c$SubbasinID[a]==median_class$SubbasinID[b]) median_class[b,i+1]<-c$`median(capacity)`[a]
+    }
+  }
+}
+names(median_class)<-c("SubbasinID","class1","class2","class3","class4","class5")
+median_class[is.na(median_class)]<-0
+```
+
+```{r export lake_maxvol}
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/gen_files"
+my.write(round(median_class,2),file=paste0(path,"/lake_maxvol_newDRN_m2_median.dat"),
+         header = "Specification of water storage capacity for the reservoir size classes\nSub-basin-ID, maxlake[m**3] (five reservoir size classes)",f = write.table)
+```
+
+# Scenario without the DRN
+
+Create lake_number.dat in order to be able to evaluate the scenario without small reservoirs in the WASA model.
+Since lake_maxvol.dat is an optional file, it will not be provided to the model when evaluating this scenario.
+
+```{r no DRN lake}
+#Dataframe construction
+par_class<-data.frame(seq(1,5,1),     #Reservoir_class-ID
+                      round(res_class,2),      #maxlake0
+                      rep(1,5),       #lake_vol0_factor
+                      rep(0,5),       #lake_change: leave it to 0, so the number of reservoirs doesn't increase
+                      rep(alpha_Molle,5),   
+                      rep(damk_Molle,5),
+                      c(12.5,18.75,25,37.5,50),       #damc_hrr
+                      rep(1.5,5)      #damd_hrr
+                      )
+names(par_class)<-c("Reservoir_class-ID", "maxlake0_m3", "lake_vol0_factor", "lake_change", "alpha_Molle", "damk_Molle", "damc_hrr", "damd_hrr")
+
+#Save it
+options(scipen = 999)
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/gen_files"
+my.write(par_class,file=paste0(path,"/lake_noDRN.dat"),
+         header = "Specification of parameters for the reservoir size classes\nReservoir_class-ID, maxlake0[m**3], lake_vol0_factor[-], lake_change[-], alpha_Molle[-], damk_Molle[-], damc_hrr[-], damd_hrr[-]",f = write.table)
+options(scipen = 0)
+```
+
+```{r no DRN lake_number}
+#Sub-basins without networks of small reservoirs must not be entered in the file.
+#Create a blank file and try if it works
+#Otherwise, create a file with only 1 reservoir for each subbasin, in the lowest class
+
+#No reservoirs
+path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/gen_files"
+write.table("Specification of total number of reservoirs in the size classes\nSub-basin-ID, acud[-] (five reservoir size classes)",paste0(path,"/lake_number_noDRN_v1.dat"), row.names = FALSE, quote = FALSE, col.names = FALSE)
+
+#Only one resevoir in the smallest reservoir class
+count_class[,2]<-1
+count_class[,3:6]<-0
+my.write(count_class,file=paste0(path,"/lake_number_noDRN_v2.dat"),
+         header = "Specification of total number of reservoirs in the size classes\nSub-basin-ID, acud[-] (five reservoir size classes)",f = write.table)
+
+#Only zeros
+#it works!!!!
+count_class[,2]<-0
+count_class[,3:6]<-0
+my.write(count_class,file=paste0(path,"/lake_number_noDRN_v3.dat"),
+         header = "Specification of total number of reservoirs in the size classes\nSub-basin-ID, acud[-] (five reservoir size classes)",f = write.table)
+
+
+```
