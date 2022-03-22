@@ -246,7 +246,7 @@ For each subbasin, a representative reservoir in each class can be identified, a
 In the gen_files folder a lake_maxvol computed with the mean can also be found.
 
 ```{r lake_maxvol}
-path <- "./Data/General"
+path <- "./Data/Generated/General"
 res <- read.table(paste0(path, "/reservoir_name_ID.txt"), header = TRUE, sep = "\t")
 
 median_class <- data.frame(res$SubbasinID)
