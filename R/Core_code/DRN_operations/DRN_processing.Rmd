@@ -45,8 +45,8 @@ glob_wat_cut <- glob_wat_cut[which(glob_wat_cut$DN == 1),]
 ## Export the "clean" shapefile
 
 ```{r}
-writeOGR(glob_wat_cut, dsn = "./Global_surface_water", layer = "global_wat_cut",
-         driver = "ESRI Shapefile" )
+writeOGR(glob_wat_cut, dsn = "./Data/DRN/Global_surface_water", layer = "global_wat_cut",
+         driver = "ESRI Shapefile")
 ```
 
 # DRN update
@@ -56,7 +56,7 @@ The Global Water shapefile has been joined to the FUNCEME reservoirs shapefile. 
 ## Load of the new shapefile
 
 ```{r load DRN to update}
-DRN_update <- readOGR(dsn = "./DRN/DRN_update_area_ID.shp")
+DRN_update <- readOGR(dsn = "./Data/DRN/DRN_update_area_ID.shp")
 ```
 
 ## Calculate capacities and define the reservoir classes
@@ -113,8 +113,8 @@ toc()
 summary(DRN_update@data)
 
 #Export the updated DRN
-# writeOGR(DRN_update,dsn = "./DRN", layer = "DRN_afterR_v1",
-#          driver = "ESRI Shapefile")
+writeOGR(DRN_update, dsn = "./DRN", layer = "DRN_afterR_v1",
+          driver = "ESRI Shapefile")
 ```
 
 ```{r remove (m2)}
@@ -144,8 +144,8 @@ toc()
 summary(DRN_update@data)
 
 #Export the updated DRN
-# writeOGR(DRN_update,dsn = "./DRN", layer = "DRN_afterR_v2",
-#          driver = "ESRI Shapefile" )
+writeOGR(DRN_update, dsn = "./DRN", layer = "DRN_afterR_v2",
+          driver = "ESRI Shapefile")
 ```
 
 ## Classification
@@ -159,13 +159,12 @@ On QGIS, visualized that none of the reservoirs in the highest class are the sam
 #Method 1 (Unidentified reservoirs associated to the lowest class)
 # path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/DRN/DRN_afterR_v1.shp"
 #Method 2 (Unidentified reservoirs removed)
-path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/DRN/DRN_afterR_v2.shp"
+path <- "./Data/DRN/DRN_afterR_v2.shp"
 
 DRN_update<-readOGR(path)
 
 #Dataframe creation: first column SubbasinID, others number of reservoirs in the classes
-path<-"C:/Thesis_fortran/WASA/shapefile/Banabuiu"
-subbasins<-st_read(paste0(path,"/subbasins_cut.shp"))
+subbasins <- st_read("./Data/Shapefile/subbasins_cut_geomfix.shp")
 count_class <- subbasins %>%
                 filter(!is.na(SubbasinID)) %>%
                 group_by(SubbasinID) %>%
@@ -178,18 +177,14 @@ for(i in 1:5){
     c <- DRN_update@data %>%
           filter(!is.na(SubbasinID)) %>%
           group_by(SubbasinID) %>%
-      #   filter(capacity <= res_class[i+1] & capacity > res_class[i]) %>%
-      #for Mamede classification: below
           filter(capacity < res_class[i] & capacity >= res_class[i-1]) %>%
           summarize(count=n())
   }else{
     c <- DRN_update@data %>%
           filter(!is.na(SubbasinID)) %>%
           group_by(SubbasinID) %>%
-          #filter(capacity <= res_class[i+1]) %>%
-      #for Mamede classification: below
           filter(capacity < res_class[i]) %>%
-          summarize(count=n())
+          summarize(count = n())
   }
   for(a in seq_len(length(c$SubbasinID))){
     for(b in seq_len(length(count_class$SubbasinID))){
@@ -197,15 +192,12 @@ for(i in 1:5){
     }
   }
 }
-names(count_class) <- c("SubbasinID","class1","class2","class3","class4","class5")
+names(count_class) <- c("SubbasinID", "class1", "class2", "class3", "class4", "class5")
 count_class[is.na(count_class)] <- 0
 
 #Class ripartition
-path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/gen_files"
-count_class<-read.table(paste0(path, "/lake_number_newDRN_met2.dat"), skip = 2)
-
 for(i in 2:6){
-  print(paste0("Percentage of resevoirs in Class ",i-1))
+  print(paste0("Percentage of resevoirs in Class ", i-1))
   print(paste0(round(sum(count_class[,i])/sum(count_class[,2:6]),digits = 3)*100," %"))
 }
 ```
@@ -214,32 +206,38 @@ for(i in 2:6){
 
 ```{r lake.dat}
 #Create the dataframe
-par_class<-data.frame(seq(1,5,1),     #Reservoir_class-ID
-                      round(res_class,2),      #maxlake0
-                      rep(1,5),       #lake_vol0_factor
-                      rep(0,5),       #lake_change: this parameter can be changed in the calibration phase
-                      rep(alpha_Molle,5),   
-                      rep(damk_Molle,5),
-                      c(12.5,18.75,25,37.5,50),       #damc_hrr
-                      rep(1.5,5)      #damd_hrr
-                      )
-names(par_class)<-c("Reservoir_class-ID", "maxlake0_m3", "lake_vol0_factor", "lake_change", "alpha_Molle", "damk_Molle", "damc_hrr", "damd_hrr")
+par_class <- data.frame(seq(1,5,1),     #Reservoir_class-ID
+                        round(res_class,2),      #maxlake0
+                        rep(1,5),       #lake_vol0_factor
+                        rep(0,5),       #lake_change: this parameter can be changed in the calibration phase
+                        rep(alpha_Molle,5),
+                        rep(damk_Molle,5),
+                        c(12.5,18.75,25,37.5,50),       #damc_hrr
+                        rep(1.5,5)      #damd_hrr
+                       )
+names(par_class) <- c("Reservoir_class-ID", "maxlake0_m3", "lake_vol0_factor", "lake_change", "alpha_Molle", "damk_Molle", "damc_hrr", "damd_hrr")
 View(par_class)
 
 #Save it
 options(scipen = 999)
-path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/gen_files"
-my.write(par_class,file=paste0(path,"/lake.dat"),
-         header = "Specification of parameters for the reservoir size classes\nReservoir_class-ID, maxlake0[m**3], lake_vol0_factor[-], lake_change[-], alpha_Molle[-], damk_Molle[-], damc_hrr[-], damd_hrr[-]",f = write.table)
+path <- "./Data/Scenarios/AR"
+my.write(par_class, file = paste0(path, "/lake.dat"),
+         header = "Specification of parameters for the reservoir size classes\nReservoir_class-ID, maxlake0[m**3], lake_vol0_factor[-], lake_change[-], alpha_Molle[-], damk_Molle[-], damc_hrr[-], damd_hrr[-]",
+         f = write)
 options(scipen = 0)
 ```
 
 ### Creation of lake_number.dat
 
 ```{r lake_number}
-path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/gen_files"
-my.write(count_class,file=paste0(path,"/lake_number_newDRN_met2.dat"),
-         header = "Specification of total number of reservoirs in the size classes\nSub-basin-ID, acud[-] (five reservoir size classes)",f = write.table)
+path <- "./Data/Scenarios/AR"
+my.write(count_class, file = paste0(path,"/lake_number.dat"),
+         header = "Specification of total number of reservoirs in the size classes\nSub-basin-ID, acud[-] (five reservoir size classes)",
+         f = write)
+
+#Check class ripartition
+path <- "./Data/Scenarios/AR"
+count_class <- read.table(paste0(path, "/lake_number.dat"), skip = 2)
 ```
 
 ### Creation of lake_maxvol.dat
@@ -247,11 +245,11 @@ my.write(count_class,file=paste0(path,"/lake_number_newDRN_met2.dat"),
 For each subbasin, a representative reservoir in each class can be identified, and its starting volume can be provided to WASA in the lake_maxvol.dat file. To identify the representative reservoir for each class, take the median capacity in each reservoir class, for each subbasin.
 In the gen_files folder a lake_maxvol computed with the mean can also be found.
 
-```{r representative reservoirs}
-path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis"
-res<-read.table(paste0(path,"/reservoir_name_ID.txt"), header = TRUE, sep = "\t")
+```{r lake_maxvol}
+path <- "./Data/General"
+res <- read.table(paste0(path, "/reservoir_name_ID.txt"), header = TRUE, sep = "\t")
 
-median_class<- data.frame(res$SubbasinID)
+median_class <- data.frame(res$SubbasinID)
 names(median_class) <- "SubbasinID"
 
 for(i in 1:5){
@@ -272,20 +270,21 @@ for(i in 1:5){
           filter(capacity < res_class[i]) %>%
           summarize(median(capacity))
   }
-  for(a in 1:length(c$SubbasinID)){
-    for(b in 1:length(median_class$SubbasinID)){
+  for(a in seq_len(length(c$SubbasinID))){
+    for(b in seq_len(length(median_class$SubbasinID))){
         if(c$SubbasinID[a]==median_class$SubbasinID[b]) median_class[b,i+1]<-c$`median(capacity)`[a]
     }
   }
 }
-names(median_class)<-c("SubbasinID","class1","class2","class3","class4","class5")
-median_class[is.na(median_class)]<-0
+names(median_class) <- c("SubbasinID","class1","class2","class3","class4","class5")
+median_class[is.na(median_class)] <- 0
 ```
 
 ```{r export lake_maxvol}
-path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/gen_files"
-my.write(round(median_class,2),file=paste0(path,"/lake_maxvol_newDRN_m2_median.dat"),
-         header = "Specification of water storage capacity for the reservoir size classes\nSub-basin-ID, maxlake[m**3] (five reservoir size classes)",f = write.table)
+path <- "./Data/Scenarios/AR"
+my.write(round(median_class,2), file=paste0(path, "/lake_maxvol.dat"),
+         header = "Specification of water storage capacity for the reservoir size classes\nSub-basin-ID, maxlake[m**3] (five reservoir size classes)",
+         f = write)
 ```
 
 # Scenario without the DRN
@@ -295,22 +294,23 @@ Since lake_maxvol.dat is an optional file, it will not be provided to the model 
 
 ```{r no DRN lake}
 #Dataframe construction
-par_class<-data.frame(seq(1,5,1),     #Reservoir_class-ID
-                      round(res_class,2),      #maxlake0
-                      rep(1,5),       #lake_vol0_factor
-                      rep(0,5),       #lake_change: leave it to 0, so the number of reservoirs doesn't increase
-                      rep(alpha_Molle,5),   
-                      rep(damk_Molle,5),
-                      c(12.5,18.75,25,37.5,50),       #damc_hrr
-                      rep(1.5,5)      #damd_hrr
-                      )
-names(par_class)<-c("Reservoir_class-ID", "maxlake0_m3", "lake_vol0_factor", "lake_change", "alpha_Molle", "damk_Molle", "damc_hrr", "damd_hrr")
+par_class <- data.frame(seq(1,5,1),     #Reservoir_class-ID
+                       round(res_class, 2),      #maxlake0
+                        rep(1,5),       #lake_vol0_factor
+                        rep(0,5),       #lake_change: leave it to 0, so the number of reservoirs doesn't increase
+                        rep(alpha_Molle, 5),   
+                        rep(damk_Molle, 5),
+                        c(12.5,18.75,25,37.5,50),       #damc_hrr
+                        rep(1.5, 5)      #damd_hrr
+                        )
+names(par_class) <- c("Reservoir_class-ID", "maxlake0_m3", "lake_vol0_factor", "lake_change", "alpha_Molle", "damk_Molle", "damc_hrr", "damd_hrr")
 
 #Save it
 options(scipen = 999)
-path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/gen_files"
-my.write(par_class,file=paste0(path,"/lake_noDRN.dat"),
-         header = "Specification of parameters for the reservoir size classes\nReservoir_class-ID, maxlake0[m**3], lake_vol0_factor[-], lake_change[-], alpha_Molle[-], damk_Molle[-], damc_hrr[-], damd_hrr[-]",f = write.table)
+path <- "./Data/Scenarios/LR"
+my.write(par_class, file=paste0(path, "/lake.dat"),
+         header = "Specification of parameters for the reservoir size classes\nReservoir_class-ID, maxlake0[m**3], lake_vol0_factor[-], lake_change[-], alpha_Molle[-], damk_Molle[-], damc_hrr[-], damd_hrr[-]",
+         f = write)
 options(scipen = 0)
 ```
 
@@ -320,21 +320,11 @@ options(scipen = 0)
 #Otherwise, create a file with only 1 reservoir for each subbasin, in the lowest class
 
 #No reservoirs
-path<-"C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis/gen_files"
-write.table("Specification of total number of reservoirs in the size classes\nSub-basin-ID, acud[-] (five reservoir size classes)",paste0(path,"/lake_number_noDRN_v1.dat"), row.names = FALSE, quote = FALSE, col.names = FALSE)
-
-#Only one resevoir in the smallest reservoir class
-count_class[,2]<-1
-count_class[,3:6]<-0
-my.write(count_class,file=paste0(path,"/lake_number_noDRN_v2.dat"),
-         header = "Specification of total number of reservoirs in the size classes\nSub-basin-ID, acud[-] (five reservoir size classes)",f = write.table)
-
+path <- "./Data/Scenarios/LR"
 #Only zeros
-#it works!!!!
-count_class[,2]<-0
-count_class[,3:6]<-0
-my.write(count_class,file=paste0(path,"/lake_number_noDRN_v3.dat"),
-         header = "Specification of total number of reservoirs in the size classes\nSub-basin-ID, acud[-] (five reservoir size classes)",f = write.table)
-
-
+count_class[, 2] <- 0
+count_class[, 3:6] <- 0
+my.write(count_class,file = paste0(path, "/lake_number.dat"),
+         header = "Specification of total number of reservoirs in the size classes\nSub-basin-ID, acud[-] (five reservoir size classes)",
+         f = write.table)
 ```
