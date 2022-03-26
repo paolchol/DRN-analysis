@@ -2,7 +2,7 @@
 
 # Setup -------------------------------------------------------------------
 
-setwd("C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
+setwd("C:/Directory_thesis_codes")
 
 source("./Libraries/Libraries.R")
 source("./Libraries/Functions.R")
@@ -10,7 +10,7 @@ source("./Libraries/Functions_MC.R")
 
 get_mean_volume = function(df, df_class, df_vol, c){
   ss <- names(df_class)[2:ncol(df_class)]
-  for(i in 1:length(ss)){
+  for(i in seq_len(length(ss))){
     s <- ss[i]
     n <- sum(df$class == c & df$SubbasinID == as.numeric(s))
     id_select <- df$id[which(df$class == c & df$SubbasinID == as.numeric(s))]
@@ -23,8 +23,8 @@ get_mean_volume = function(df, df_class, df_vol, c){
 
 # Load the reservoirs shapefiles ----------------------------------------------
 
-HDNR <- readOGR("./Data/HDNR/HDNR.shp")
-res <- readOGR("./Data/Reservoirs/centralized_res.shp")
+HDNR <- readOGR("./Data/DRN/HDNR.shp")
+res <- readOGR("./Data/Shapefile/Reservoirs/centralized_res.shp")
 
 #Create dfs from the shapefiles attribute tables
 HDNR_df <- HDNR@data
@@ -67,7 +67,7 @@ numH <- HDNR_df$capacity * HDNR_df$dx
 
 date <- seq(1980, 2018, 1)
 Dsc_r <- data.frame(date = date, Dsc = 0)
-for(i in 1:nrow(Dsc)){
+for(i in seq_len(nrow(Dsc))){
   rescapdx <- sum(res_df$numC[res_df$year <= Dsc$date[i]])
   rescap <- sum(res_df$capacity[res_df$year <= Dsc$date[i]])
   Dsc_r$Dsc[i] <- (sum(numH) + sum(rescapdx))/(sum(HDNR_df$capacity) + sum(rescap))
@@ -76,7 +76,7 @@ plot(Dsc_r)
 
 #NoH scenario
 Dsc_nH <- data.frame(date = date, Dsc = 0)
-for(i in 1:nrow(Dsc_nH)){
+for(i in seq_len(nrow(Dsc_nH))){
   rescapdx <- sum(res_df$numC[res_df$year <= Dsc$date[i]])
   rescap <- sum(res_df$capacity[res_df$year <= Dsc$date[i]])
   Dsc_nH$Dsc[i] <- rescapdx/rescap
@@ -96,6 +96,8 @@ HDNR_vol$date <- class1$date
 col_order <- c("date", HDNR_df$id)
 HDNR_vol <- HDNR_vol[, col_order]
 
+#Include here the code used to produce the classes (supporting_code/lake_volume_handling)
+
 HDNR_vol <- get_mean_volume(HDNR_df, class1, HDNR_vol, 1)
 HDNR_vol <- get_mean_volume(HDNR_df, class2, HDNR_vol, 2)
 HDNR_vol <- get_mean_volume(HDNR_df, class3, HDNR_vol, 3)
@@ -113,14 +115,14 @@ mean(HDNR_df$dx)
 tic("Dsv real computation")
 Dsv_r <- data.frame(date = real_df$date)
 Dsv_r$Dsv <- 0
-for(i in 1:nrow(Dsv_r)){
+for(i in seq_len(nrow(Dsv_r))){
   num <- sum(HDNR_vol[i, 2:ncol(HDNR_vol)]*dx_hdnr) + sum(real_df[i, 2:ncol(real_df)]*dx_res)
   den <- sum(HDNR_vol[i, 2:ncol(HDNR_vol)]) + sum(real_df[i, 2:ncol(real_df)])
   Dsv_r$Dsv[i] <- num/den
 }
 
 Dsv_r$noH <- 0
-for(i in 1:nrow(Dsv_r)){
+for(i in seq_len(nrow(Dsv_r))){
   num <- sum(real_df[i, 2:ncol(real_df)]*dx_res)
   den <- sum(real_df[i, 2:ncol(real_df)])
   Dsv_r$noH[i] <- num/den
@@ -132,10 +134,10 @@ plot_df_interactive(Dsv_r)
 tic("Dsv noH computation")
 Dsv_nH <- data.frame(date = real_df$date)
 Dsv_nH$Dsv <- 0
-for(i in 1:nrow(Dsv_nH)){
-  num <- sum(noH_df[i, 2:ncol(noH_df)]*dx_res)
+for(i in seq_len(nrow(Dsv_nH))){
+  num <- sum(noH_df[i, 2:ncol(noH_df)] * dx_res)
   den <- sum(noH_df[i, 2:ncol(noH_df)])
-  Dsv_nH$Dsv[i] <- num/den
+  Dsv_nH$Dsv[i] <- num / den
 }
 toc()
 plot_df_interactive(Dsv_nH)
@@ -152,17 +154,5 @@ save(Dsv_nH, file = "./Data/Downstreamness/Dsv_nH.Rdata")
 #The downstreamness of the small reservoirs is really low, this reduces the
 #product between the volume and the dx
 #Anyway, the downstreamness in the noH configuration is higher than the real
-#case, showing that even if the relative weight is small, the network provides for a
-#less downstream distribution
-
-
-
-
-
-
-
-
-
-
-
-
+#case, showing that even if the relative weight is small, the network provides
+#for a less downstream distribution
