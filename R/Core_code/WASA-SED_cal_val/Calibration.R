@@ -6,8 +6,8 @@
 
 # Setup -------------------------------------------------------------------
 
-setwd("C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Analysis")
-path_obs <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Data/Observed_volumes/volume_series_banabuiu_reservoirs_ID"
+setwd("C:/Directory_thesis_code")
+path_obs <- "./Data/Observed_volumes/volume_series_banabuiu_reservoirs_ID"
 path_baseline <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Output_baseline_left_end"
 
 source("Libraries.R")
@@ -18,11 +18,11 @@ source("Functions_CO.R")
 source("Functions_MC.R")
 
 #Load the maximum capacities of the reservoirs
-path_maxcap <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Input/Reservoir/reservoir.dat"
+path_maxcap <- "./Input/Reservoir/reservoir.dat"
 reservoirs <- read.table(path_maxcap, skip = 2, sep = "\t")
-maxcap <- reservoirs[,c(1,5)]
-names(maxcap) <- c('ID','max')
-maxcap[,2] <- maxcap[,2]*1000 #m3
+maxcap <- reservoirs[ ,c(1, 5)]
+names(maxcap) <- c('ID', 'max')
+maxcap[, 2] <- maxcap[, 2] * 1000 #m3
 
 # Load the observations ---------------------------------------------------
 
