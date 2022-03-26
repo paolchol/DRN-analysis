@@ -2,7 +2,7 @@
 
 # Setup -------------------------------------------------------------------
 
-setwd("C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
+setwd("C:/Directory_thesis_codes")
 
 source("./Libraries/Libraries.R")
 source("./Libraries/Functions.R")
@@ -75,7 +75,7 @@ save(class5, file = paste0(path_save, "/class5.RData"))
 
 get_mean_volume = function(df, df_class, df_vol, c){
   ss <- names(df_class)[2:ncol(df_class)]
-  for(i in 1:length(ss)){
+  for(i in seq_len(length(ss))){
     s <- ss[i]
     n <- sum(df$class == c & df$SubbasinID == as.numeric(s))
     id_select <- df$id[which(df$class == c & df$SubbasinID == as.numeric(s))]
