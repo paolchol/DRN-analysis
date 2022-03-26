@@ -174,7 +174,7 @@ output_rad <- create_time_series_Wmean(main_dataframe = main_dataframe_rad,
                                        positions = positions_rad,
                                        layer = subbasins)
 #Change the measuring unit from KJ/(m2*h) to W/(m2*d)
-output_rad[,3:ncol(output_rad)]<-output_rad[,3:ncol(output_rad)]*1000/(24*3600)
+output_rad[, 3:ncol(output_rad)]<-output_rad[, 3:ncol(output_rad)]*1000/(24*3600)
 h = "Daily average shortwave radiation [in Wm2] for each subasin, ordered according Map-IDs\nDate No. of days Subasin-ID\n0 0 123 125 126 127 134 137 138 139 142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157 158 159 160"
 output_rad <- WASA_input_format(main_dataframe_rad, output_rad, header = h, path = path_export, name = "radiation_INMET_2006")
 write.table(output_rad,paste0(path_export,"/output_rad_INMET_save_2006.txt"),quote = FALSE,sep="\t",row.names = FALSE)

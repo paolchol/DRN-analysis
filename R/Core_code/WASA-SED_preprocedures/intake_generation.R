@@ -2,7 +2,7 @@
 
 # Setup -------------------------------------------------------------------
 
-setwd("C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
+setwd("C:/Directory_thesis_codes")
 
 source("./Libraries/Libraries.R")
 source("./Libraries/Functions.R")
@@ -18,18 +18,18 @@ names(index_files) <- "path"
 index_files$SubbasinID <- gsub("\\..*","",basename(index_files$path))
 
 withdrawal_list<-list()
-for(i in 1:nrow(index_files)){
+for(i in seq_len(nrow(index_files))){
   name<-paste0("res_",index_files$SubbasinID[i])
   withdrawal_list[[name]]<-read.csv(index_files$path[i], header = TRUE, sep = ",")
 }
 
 #Change the format of the date column to date
-for(i in 1:length(withdrawal_list[])){
+for(i in seq_len(length(withdrawal_list[]))){
   withdrawal_list[[i]][["date"]] <- as.Date(withdrawal_list[[i]][["date"]])
 }
 
 #Check the percentage of NAs in the observations
-for(i in 1:length(withdrawal_list[])){
+for(i in seq_len(length(withdrawal_list[]))){
   print(sum(is.na(withdrawal_list[[i]]$flow))/length(withdrawal_list[[i]]$flow))
 }
 
@@ -41,19 +41,20 @@ start_y <- 1981
 end_y <- 2020 #2018
 start_m <- 01
 end_m <- 12
-start<-paste0("01/0",start_m,"/",start_y)
-end<-paste0("31/",end_m,"/",end_y)
-date<-seq(as.Date(start,"%d/%m/%Y"), as.Date(end,"%d/%m/%Y"), by="days")
+start <- paste0("01/0", start_m, "/", start_y)
+end <- paste0("31/", end_m, "/", end_y)
+date <- seq(as.Date(start, "%d/%m/%Y"), as.Date(end, "%d/%m/%Y"), by = "days")
 
 #Create the dataframe
-withdrawal_df<-data.frame(date)
-withdrawal_df$doy<-NA
+withdrawal_df <- data.frame(date)
+withdrawal_df$doy <- NA
 
-for(i in 1:length(withdrawal_list[])){
-  new_v<-sistemadati_DCA(vettore = withdrawal_list[[i]], lung = nrow(withdrawal_df), g = date,
-                         coltime = 1, coldata = 2)
-  withdrawal_df$new<-new_v[,2]
-  names(withdrawal_df)[names(withdrawal_df) == "new"]<-index_files$SubbasinID[i]
+for (i in seq_len(length(withdrawal_list[]))){
+  new_v <- sistemadati_DCA(vettore = withdrawal_list[[i]],
+                          lung = nrow(withdrawal_df), g = date,
+                          coltime = 1, coldata = 2)
+  withdrawal_df$new <- new_v[,2]
+  names(withdrawal_df)[names(withdrawal_df) == "new"] <- index_files$SubbasinID[i]
 }
 
 #Save the dataframe for future use
@@ -67,7 +68,15 @@ plot_df_interactive(withdrawal_df)
 #                   interactive = TRUE, file = "withdrawal_line", path = path_plot, line = TRUE)
 
 #Change the NA values to -999
-withdrawal_df[,3:ncol(withdrawal_df)][is.na(withdrawal_df[,3:ncol(withdrawal_df)])] <- -999
+replace_NA <- function(df, colrange, val){
+  s <- colrange[1]
+  e <- colrange[2]
+  df[, s:e][is.na(df[, s:e])] <- val
+  return(df)
+}
+
+# withdrawal_df[,3:ncol(withdrawal_df)][is.na(withdrawal_df[,3:ncol(withdrawal_df)])] <- -999
+withdrawal_df <- replace_NA(withdrawal_df, c(3, ncol(withdrawal_df), -999))
 
 #Put the dataframe in the WASA format and save it
 

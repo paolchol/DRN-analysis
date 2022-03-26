@@ -29,7 +29,7 @@ maxcap[,2] <- maxcap[,2]*1000 #m3
 obs_input <- create_data_list(path_obs, c('date', 'volume'), skip = 1, f = read.csv, s = ",")
 date <- create_date_vector(1980, 2018)
 IDs <- data.frame(ID = gsub("\\..*","",basename(obs_input[[1]])))
-for(i in 1:length(obs_input[[2]])){
+for(i in seq_len(length(obs_input[[2]]))){
   obs_input[[2]][[i]]$date <- change_date_format(obs_input[[2]][[i]]$date)
 }
 obs_df <- create_main_dataframe(date, obs_input[[2]], IDs, timecol = 1, datacol = 2)
@@ -144,7 +144,7 @@ View(baseline_res$mean)
 # write.table(results$mean, paste0(path_results, "/mean_results_baseline_correct.txt"), sep = "\t", quote = FALSE, row.names = TRUE)
 
 
-'''
+""" # nolint
 Save the codes
 
 O = one changed
@@ -184,5 +184,4 @@ Ox20y3 = 145, 2 - Decise improvement
 Ox21y4 = 145, 4 - Worse
 
 Tx22y3y3 = 154, 145, 2 - Decise improvement
-
-'''
+"""
