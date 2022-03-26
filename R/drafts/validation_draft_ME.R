@@ -103,10 +103,3 @@ WASA_input_format_intake = function(df, header, path, name){
 h <- "# Specification of controlled release through reservoir's intake devices in [m3/s]\nDate,\tDoy,\t123,\t125,\t126,\t127,\t138,\t142,\t143,\t145,\t146,\t147,\t148,\t149,\t150,\t151,\t152,\t153,\t154,\t156,\t160"
 cal_intake <- WASA_input_format_intake(cal_intake, h, cal_path, "intake")
 val_intake <- WASA_input_format_intake(val_intake, h, val_path, "intake")
-
-
-
-
-
-
-

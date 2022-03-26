@@ -16,37 +16,37 @@ source("./Libraries/Functions_CO.R")
 source("./Libraries/Functions_MC.R")
 
 #Load hydroGOF the hard way
-files_sources = list.files("./Libraries/hydroGOF-master/R", full.names = T)
+files_sources <- list.files("./Libraries/hydroGOF-master/R", full.names = T)
 sapply(files_sources, source)
 
 #Load the maximum capacities of the reservoirs
-path_maxcap <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Input/Reservoir/reservoir.dat"
+path_maxcap <- "./Data/Scenarios/AR/reservoir.dat"
 reservoirs <- read.table(path_maxcap, skip = 2, sep = "\t")
-maxcap <- reservoirs[,c(1,5)]
-names(maxcap) <- c('ID','max')
-maxcap[,2] <- maxcap[,2]*1000 #m3
+maxcap <- reservoirs[, c(1, 5)]
+names(maxcap) <- c('ID', 'max')
+maxcap[, 2] <- maxcap[, 2] * 1000 #m3
 
 #Set the start and end year of the simulation
 starting_year <- 1980
 ending_year <- 2020
 
 #Load the reservoirs IDs
-load("./Inputs/General/IDs.RData")
+load("./Data/Generated/General/IDs.RData")
 
 # Load the observations ---------------------------------------------------
 
-load("./Inputs/Calibration/cal_ME1_ME3/df_observations.RData")
+load("./Input/Calibration/cal_ME1_ME3/df_observations.RData")
 
 # Load the baseline -------------------------------------------------------
 #The baseline is the un-calibrated model after adding ME1 and ME3
 
-load("./Inputs/Calibration/cal_ME1_ME3/df_baseline.RData")
+load("./Input/Calibration/cal_ME1_ME3/df_baseline.RData")
 
 # Calibration -------------------------------------------------------------
 
 #Path for scaling_factor file and output
-path_scaling_in <- "./Inputs/Calibration/uncalibrated_scaling_factor.dat"
-path_scaling_out <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Input/Others" 
+path_scaling_in <- "./Input/Calibration/uncalibrated_scaling_factor.dat"
+path_scaling_out <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Input/Others"
 path_WASA_output <- "C:/Thesis_fortran/Directory_WASA_Banabuiu/Output"
 
 #Definition of the calibration order
@@ -65,16 +65,17 @@ right_branch <- c(142, 157,
                   147,
                   143, 156) #re-calibration of 156 after the results of the right branch
 subbasins <- c(left_branch, right_branch)
+#Sub-basins without reservoirs
 no_res_sub <- c(134, 137, 139, 144, 155, 157, 158, 159)
 
 #Automatic calibration
-sub_to_calibrate <- subbasins
+sub_to_calibrate <- subbasins #or it can be splitted in right_branch/left_branch
 par_range <- seq(0.2, 7, 0.2)
 
-#First launch, on the left branch
-# scaling_factors <- data.frame(IDs, val = 1)
-scaling_factors <- read.table("./Inputs/Calibration/cal_ME1_ME3/automatic_scaling_factor_159.dat", sep = "\t",
-                              col.names = c('ID', 'val'), header = TRUE)
+#Start with all scaling factors at 1
+scaling_factors <- data.frame(IDs, val = 1)
+# scaling_factors <- read.table("./Inputs/Calibration/cal_ME1_ME3/automatic_scaling_factor_159.dat", sep = "\t",
+#                               col.names = c('ID', 'val'), header = TRUE)
 list_performance <- list()
 
 #List of lost values
@@ -90,7 +91,7 @@ for(i in restart:length(sub_to_calibrate)){
   UV <- 0
   lostval <- rep(0, 35)
   usedval <- rep(0, 35)
-  for(j in 1:length(par_range)){
+  for (j in seq_len(length(par_range))){
     #Modify the scaling factor file
     par <- par_range[j]
     scaling_factors$val[scaling_factors$ID == sub] <- par
@@ -123,10 +124,8 @@ for(i in restart:length(sub_to_calibrate)){
   else k <- which(performance$ID == sub)
   pos <- which(performance[k, ] == max(performance[k, 2:ncol(performance)])) - 1
   par_max <- usedval[pos]  #par_range[pos]
-  
   #Modify the overall scaling_factors
   scaling_factors$val[scaling_factors$ID == sub] <- par_max
-  
   #Save the performance
   list_performance[[paste0("s", sub)]] <- performance
   write.table(performance, paste0(path_save, "/single_change_perf/",
@@ -144,7 +143,7 @@ modify_scaling_factor(path_scaling_in, "./Inputs/Calibration/cal_ME1_ME3/", scal
 list.save(list_performance, paste0(path_save, "/list_performance_ME1ME3.RData"))
 toc()
 #Whole model's calibration - Time needed:
-#Number of iterations: 
+#Number of iterations:
 
 print(paste0("Number of lost values: ", number_lost))
 
@@ -154,14 +153,13 @@ print(paste0("Number of lost values: ", number_lost))
 #Use this one to start the right branch calibration!
 #Load all the performances
 
-
 # Check one configuration -------------------------------------------------
 
 #Define the configuration
 # subb <- 154
 # val <- 2.4
 #or load the best configuration obtained
-sf_load <- "./Inputs/Calibration/calibrated_scaling_factor.dat"
+sf_load <- "./Input/Calibration/calibrated_scaling_factor.dat"
 scaling_factor <- read.table(sf_load, sep = "\t", header = TRUE)
 subb <- scaling_factor[,1]; val <- scaling_factor[,2]
 code <- gen_code(subb, val)
