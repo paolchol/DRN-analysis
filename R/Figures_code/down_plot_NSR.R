@@ -3,8 +3,8 @@
 # Setup -------------------------------------------------------------------
 
 #Directory and paths
-setwd("C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
-path_maxcap <- "./Inputs/Model_input/Base/Reservoir/reservoir.dat"
+setwd("C:/Directory_thesis_codes")
+path_maxcap <- "./Input/Model_input/Base/Reservoir/reservoir.dat"
 
 source("./Libraries/Libraries.R")
 source("./Libraries/Functions.R")
@@ -15,16 +15,15 @@ source("./Libraries/Functions_MC.R")
 source("./Libraries/Functions_AN.R")
 
 #Load the IDs of the subbasins in the Banabuiu region
-load("./Inputs/General/IDs.RData")
+load("./Input/General/IDs.RData")
 subID <- read.table("./Inputs/General/reservoir_name_ID.txt", header = TRUE, sep = "\t")
 
 get_mean_volume = function(df, df_class, df_vol, c){
   ss <- names(df_class)[2:ncol(df_class)]
-  for(i in 1:length(ss)){
+  for (i in seq_len(length(ss))){
     s <- ss[i]
     n <- sum(df$class == c & df$SubbasinID == as.numeric(s))
     id_select <- df$id[which(df$class == c & df$SubbasinID == as.numeric(s))]
-    
     vol <- df_class[s]/n
     df_vol[, names(df_vol) %in% id_select] <- vol
   }
@@ -33,15 +32,15 @@ get_mean_volume = function(df, df_class, df_vol, c){
 
 # Load the reservoirs shapefiles ----------------------------------------------
 
-HDNR <- readOGR("./Data/HDNR/HDNR.shp")
+DRN <- readOGR("./Data/DRN/DRN.shp")
 res <- readOGR("./Data/Reservoirs/centralized_res.shp")
 
 #Create dfs from the shapefiles attribute tables
-HDNR_df <- HDNR@data
+DRN_df <- DRN@data
 res_df <- res@data
 
 #Remove the shapefiles (not needed anymore)
-remove(HDNR)
+remove(DRN)
 remove(res)
 
 # Load the model output ---------------------------------------------------
@@ -82,14 +81,14 @@ dx_res <- res_df$dx[res_df$subID == 156]
 tic("Dsv SR computation")
 Dsv_SR <- data.frame(date = ALhdnr$date)
 Dsv_SR$Dsv <- 0
-for(i in 1:nrow(Dsv_SR)){
-  num <- sum(HDNR_vol[i, 2:ncol(HDNR_vol)]*dx_hdnr) + sum(ALhdnr[i, 2]*dx_res)
+for(i in seq_len(nrow(Dsv_SR))){
+  num <- sum(HDNR_vol[i, 2:ncol(HDNR_vol)]*dx_hdnr) + sum(ALhdnr[i, 2] * dx_res)
   den <- sum(HDNR_vol[i, 2:ncol(HDNR_vol)]) + sum(ALhdnr[i, 2])
-  Dsv_SR$Dsv[i] <- num/den
+  Dsv_SR$Dsv[i] <- num / den
 }
 
 Dsv_SR$noH <- 0
-for(i in 1:nrow(Dsv_SR)){
+for(i in seq_len(nrow(Dsv_SR))){
   num <- sum(ALhdnr[i, 2:ncol(ALhdnr)]*dx_res)
   den <- sum(ALhdnr[i, 2:ncol(ALhdnr)])
   Dsv_SR$noH[i] <- num/den
@@ -100,7 +99,7 @@ plot_df_interactive(Dsv_SR)
 tic("Dsv noH computation")
 Dsv_N <- data.frame(date = ALonly$date)
 Dsv_N$Dsv <- 0
-for(i in 1:nrow(Dsv_N)){
+for(i in seq_len(nrow(Dsv_N))){
   num <- sum(ALonly[i, 2]*dx_res)
   den <- sum(ALonly[i, 2])
   Dsv_N$Dsv[i] <- num/den
