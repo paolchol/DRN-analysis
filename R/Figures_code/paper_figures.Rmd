@@ -1,0 +1,30 @@
+---
+title: "Code to generate the figures needed in 'The influence of small reservoirs on hydrological drought propagation in space and time'"
+author: "Paolo Colombo"
+date: "08/05/2022"
+output: html_document
+---
+
+# Load general libraries and functions
+```{r}
+setwd('C:/Directory_thesis_codes')
+```
+
+# Figure generation
+## Figure 1
+Map of the study area localization on the left. Centralized reservoirs visualization and density representation of the DRN on the right.
+Made in QGIS for now. A code can be written by loading the shapefiles used there.
+
+## Figure 2
+Comparison between the modelled and observed volumes of the reservoirs.
+### Version 1
+*Line graph of Arrojado Lisboa modelled vs observed volumes*
+
+### Version 2 
+*Scatterplot of modelled vs observed volumes. Arrojado Lisboa, Pedras Brancas, Fogareiro*
+
+## Figure 3
+Graphical representation of the Drought Cycle Analysis, from Ribeiro Neto et al., 2022.
+![Drought Cycle Analysis quadrant representation]('Figures and tables/DCA_wheel_update.jpg')
+
+## Figure 4
