@@ -16,7 +16,7 @@ extract_class = function(df, class_n, n_col = 4){
 }
 
 # Load the results of the model ------------------------------------------
-#path <- "./Data/Scenarios/Real/Model_output"
+
 path <- "./Data/Scenarios/SR/Model_output"
 WASA_hdnr <- read.table(paste0(path, "/lake_volume.out"), skip = 2)
 col <- unlist(strsplit(readLines(paste0(path, "/lake_volume.out"),n = 3)[2], "            "))
@@ -29,10 +29,6 @@ class2 <- extract_class(WASA_hdnr, 2)
 class3 <- extract_class(WASA_hdnr, 3)
 class4 <- extract_class(WASA_hdnr, 4)
 class5 <- extract_class(WASA_hdnr, 5)
-
-c <- rep(4, 12)
-sum(c[1:6])
-sum(c[7:12])
 
 #Obtain monthly values (sum)
 date <- create_date_vector(1980, 2018)
@@ -75,7 +71,7 @@ save(class5, file = paste0(path_save, "/class5.RData"))
 
 get_mean_volume = function(df, df_class, df_vol, c){
   ss <- names(df_class)[2:ncol(df_class)]
-  for(i in seq_len(length(ss))){
+  for(i in seq_len(length(ss))) {
     s <- ss[i]
     n <- sum(df$class == c & df$SubbasinID == as.numeric(s))
     id_select <- df$id[which(df$class == c & df$SubbasinID == as.numeric(s))]
@@ -113,7 +109,7 @@ class3 <- class3[, col_order]
 class4 <- class4[, col_order]
 class5 <- class5[, col_order]
 
-HDNR <- readOGR("./Data/HDNR/HDNR.shp")
+HDNR <- readOGR("./Data/DRN/HDNR.shp")
 HDNR_df <- HDNR@data
 remove(HDNR)
 
@@ -129,5 +125,5 @@ HDNR_vol_mean <- get_mean_volume(HDNR_df, class3, HDNR_vol_mean, 3)
 HDNR_vol_mean <- get_mean_volume(HDNR_df, class4, HDNR_vol_mean, 4)
 HDNR_vol_mean <- get_mean_volume(HDNR_df, class5, HDNR_vol_mean, 5)
 
-save(HDNR_vol_mean, file = "./Data/Downstreamness/HDNR_vol_mean.Rdata")
+save(HDNR_vol_mean, file = "./Data/Analysis/Downstreamness/HDNR_vol_mean.Rdata")
 

@@ -4,9 +4,9 @@
 
 setwd("C:/Directory_thesis_codes")
 
-source("./Libraries/Libraries.R")
-source("./Libraries/Functions.R")
-source("./Libraries/Functions_MC.R")
+source("./R/Libraries/Libraries.R")
+source("./R/Libraries/Functions.R")
+source("./R/Libraries/Functions_MC.R")
 
 get_mean_volume = function(df, df_class, df_vol, c){
   ss <- names(df_class)[2:ncol(df_class)]
@@ -39,17 +39,17 @@ remove(res)
 
 #Centralized
 #Real scenario
-load("./Data/Scenarios/Real/real_volumes.RData")
+load("./Data/Scenarios/AR/real_volumes.RData")
 #NoH scenario
-load("./Data/Scenarios/No_HDNR/nohdnr_volumes.RData")
+load("./Data/Scenarios/LR/nohdnr_volumes.RData")
 
 #HDNR
 #Real scenario
-load("./Data/Scenarios/Real/class1.RData")
-load("./Data/Scenarios/Real/class2.RData")
-load("./Data/Scenarios/Real/class3.RData")
-load("./Data/Scenarios/Real/class4.RData")
-load("./Data/Scenarios/Real/class5.RData")
+load("./Data/Scenarios/AR/class1.RData")
+load("./Data/Scenarios/AR/class2.RData")
+load("./Data/Scenarios/AR/class3.RData")
+load("./Data/Scenarios/AR/class4.RData")
+load("./Data/Scenarios/AR/class5.RData")
 
 # Dsc ---------------------------------------------------------------------
 #Attention: this result doesn't use any simulated result, only observational data
@@ -104,7 +104,7 @@ HDNR_vol <- get_mean_volume(HDNR_df, class3, HDNR_vol, 3)
 HDNR_vol <- get_mean_volume(HDNR_df, class4, HDNR_vol, 4)
 HDNR_vol <- get_mean_volume(HDNR_df, class5, HDNR_vol, 5)
 
-save(HDNR_vol, file = "./Data/Downstreamness/HDNR_vol.Rdata")
+save(HDNR_vol, file = "./Data/Downstreamness/DRN_AR_vol_sum.Rdata")
 
 #Compute the Dsv
 dx_hdnr <- HDNR_df$dx
@@ -112,7 +112,7 @@ dx_res <- res_df$dx[order(res_df$subID)]
 
 mean(HDNR_df$dx)
 
-tic("Dsv real computation")
+tic("Dsv AR computation")
 Dsv_r <- data.frame(date = real_df$date)
 Dsv_r$Dsv <- 0
 for(i in seq_len(nrow(Dsv_r))){
@@ -130,8 +130,8 @@ for(i in seq_len(nrow(Dsv_r))){
 toc()
 plot_df_interactive(Dsv_r)
 
-#NoH scenario
-tic("Dsv noH computation")
+#LR scenario
+tic("Dsv LR scenario computation")
 Dsv_nH <- data.frame(date = real_df$date)
 Dsv_nH$Dsv <- 0
 for(i in seq_len(nrow(Dsv_nH))){
@@ -144,6 +144,10 @@ plot_df_interactive(Dsv_nH)
 
 mean(Dsv_r$Dsv)
 mean(Dsv_nH$Dsv)
+
+Dsv_AR <- Dsv_r
+save(Dsv_AR, file = "./Data/Analysis/Downstreamness/Dsv_AR_prova.Rdata")
+
 
 #Save
 save(Dsv_r, file = "./Data/Downstreamness/Dsv_r_v2.Rdata")

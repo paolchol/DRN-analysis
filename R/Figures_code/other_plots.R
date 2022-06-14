@@ -2,9 +2,9 @@
 
 # Setup -------------------------------------------------------------------
 
-setwd("C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
-source("./Libraries/Libraries.R")
-source("./Libraries/Functions.R")
+setwd("C:/Directory_thesis_codes")
+source("./R/Libraries/Libraries.R")
+source("./R/Libraries/Functions.R")
 
 date_ranges_SPI <- data.frame(
   from = as.Date(c("1980-12-01", "1987-05-01", "1992-05-01", "1997-05-01", "2001-02-01", "2005-02-01", "2010-05-01", "2012-05-01", "2014-06-01")),
@@ -18,11 +18,13 @@ rename_scenarios = function(df){
   return(df)
 }
 
+library(plotly)
+
 # VD comparison: Real, noHDNR, observations ----------------------------------
 
-DCA_real <- list.load("./Data/DCA/DCA_real.RData")
-DCA_noH <- list.load("./Data/DCA/DCA_noH.RData")
-DCA_obs <- list.load("./Data/DCA/DCA_obs.RData")
+DCA_real <- list.load("./Data/Analysis/DCA/DCA_real2.RData")
+DCA_noH <- list.load("./Data/Analysis/DCA/DCA_noH2.RData")
+DCA_obs <- list.load("./Data/Analysis/DCA/DCA_obs2.RData")
 
 #Arrojado Lisboa
 df <- data.frame(date = DCA_real[['156']]$date, Real = DCA_real[['156']]$WSI,
@@ -172,6 +174,9 @@ plot_df_interactive(df)
 
 # Percentages of drought phases -------------------------------------------
 
+DCA_SR <- list.load("./Data/Analysis/DCA/DCA_SR.RData")
+DCA_N <- list.load("./Data/Analysis/DCA/DCA_N.RData")
+
 table <- data.frame(matrix(NA, 5, 4))
 names(table) <- c("AR%", "LR%", "SR%", "N%")
 for(i in 1:4){
@@ -209,6 +214,19 @@ ggplot(table, aes(fill = Phase, y = Percentage, x = Scenario)) +
 #giallo #FDCA40 #F7FD04
 #rosso #FB3640 #FA1E0E
 #viola #542E71 #9D0191
+
+
+perc_increment = function(xi, xf){
+  return((xf-xi)/xi * 100)
+}
+xi <- table[2,3] + table[2,4]
+xf <- table[1,3] + table[1,4]
+print(paste0('AR increase: ', perc_increment(xi, xf)))
+xi <- table[4,3] + table[4,4]
+xf <- table[3,3] + table[3,4]
+print(paste0('SR increase: ', perc_increment(xi, xf)))
+
+perc_increment(table[4,4], table[3,4])
 
 # DRN capacities ripartition ----------------------------------------------
 

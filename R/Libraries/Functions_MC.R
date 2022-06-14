@@ -1,8 +1,8 @@
 #Functions for Model calibration
 
 #Other functions needed
-setwd("C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
-source("./Libraries/Functions_TG.R")
+setwd("C:/Directory_thesis_codes")
+source("./R/Libraries/Functions_TG.R")
 
 # Dataframe operations -----------------------------------------------------
 
@@ -32,34 +32,34 @@ load_WASA_results = function(path, IDs, dates){
              "prec", "intake", "overflow",
              "qbottom", "qout", "withdrawal", "elevation", "area", "volume")
   files <- paste0(path, "/res_", IDs$ID,"_watbal.out")
-  data_list<-list()
-  for(i in 1:length(files)){
-    data_list[[i]]<-read.table(files[i], skip = 3, header = FALSE)
+  data_list <- list()
+  for(i in seq_len(length(files))){
+    data_list[[i]] <- read.table(files[i], skip = 3, header = FALSE)
     names(data_list[[i]]) <- columns
   }
   #Add the date column to the vector
-  for(i in 1:length(data_list[])){
+  for(i in seq_len(length(data_list[]))){
     data_list[[i]] <- date_col_WASA_out(data_list[[i]])
   }
   df <- create_main_dataframe(dates, data_list, IDs, timecol = 18, datacol = 17)
   return(df)
 }
 
-sumx = function(x){ return(sum(x, na.rm = TRUE)) }
+sumx = function(x) { return(sum(x, na.rm = TRUE)) }
 
-monthly_scale = function(df, skip = 1, f = sum){
-  skip = skip + 1
-  df[,1] <- lubridate::floor_date(df[,1], unit = "month")
+monthly_scale = function(df, skip = 1, f = sum) {
+  skip <- skip + 1
+  df[, 1] <- lubridate::floor_date(df[, 1], unit = "month")
   month_date <- df %>%
     group_by(date) %>%
     summarize()
   month_df <- data.frame(month_date)
-  for(i in skip:ncol(df)){
+  for (i in skip:ncol(df)) {
     month_df$new <- 0
-    for(j in 1:nrow(month_df)){
-      month_df$new[j] <- f(df[,i][df[,1] == month_df$date[j]])
+    for (j in seq_len(dim(month_df)[1])) {
+      month_df$new[j] <- f(df[, i][df[, 1] == month_df$date[j]])
     }
-    names(month_df)[names(month_df) == "new"]<-colnames(df)[i]
+    names(month_df)[names(month_df) == "new"] <- colnames(df)[i]
   }
   return(month_df)
 }
@@ -68,15 +68,17 @@ monthly_scale = function(df, skip = 1, f = sum){
 
 plot_comparison = function(mod_df, obs_df, skip = 1, y = "Value", label = "Title", interactive = FALSE, file = "plot",
                           save = FALSE, path){
-  skip <- skip +1
+  skip <- skip + 1
   for(i in skip:ncol(mod_df)){
-    vis1 <- data.frame(mod_df[,1], mod_df[,i], rep("Modelled", nrow(mod_df)))
+    vis1 <- data.frame(mod_df[,1], mod_df[, i], rep("Modelled", nrow(mod_df)))
     names(vis1) <- c("date", "value", "ID")
-    vis2 <- data.frame(obs_df[,1], obs_df[,i], rep("Observed", nrow(obs_df)))
+    vis2 <- data.frame(obs_df[,1], obs_df[, i], rep("Observed", nrow(obs_df)))
     names(vis2) <- c("date", "value", "ID")
     df<-rbind(vis1, vis2)
-    p <- ggplot(df, aes(date, value)) + geom_line(aes(colour = ID), alpha = 0.5, size = 2) +
-      xlab("Date") + ylab(y) + ggtitle(paste0(label, " - ", colnames(mod_df)[i]))
+    p <- ggplot(df, aes(date, value)) +
+          geom_line(aes(colour = ID), alpha = 0.5, size = 2) +
+          xlab("Date") + ylab(y) +
+          ggtitle(paste0(label, " - ", colnames(mod_df)[i]))
     if(interactive){
       #ggplotly(p)
       #Saves an interactive version
@@ -167,14 +169,16 @@ plot_calibration = function(it, base, obs, ID, code, nobase = FALSE){
 
 plot_stat_calibration = function(list, code, path, file, save = FALSE){
   options(scipen = 999)
-  for(i in 1:length(list)){
+  for(i in seq_len(length(list))) {
     if(i == 1) df <- data.frame(list[[i]]$ID)
     df <- data.frame(df, list[[i]][,2])
     if(i == length(list)) names(df) <- c("ID",names(list))
   }
   df <- reshape2::melt(df, id.vars = 'ID', variable.name = 'Indicator')
-  p <- ggplot(df, aes(ID, value)) + geom_point(aes(colour = Indicator), alpha = 0.5, size = 2) +
-    xlab('Sub-basin') + ylab('Value') + ggtitle(paste0("Performance - ",code))
+  p <- ggplot(df, aes(ID, value)) +
+        geom_point(aes(colour = Indicator), alpha = 0.5, size = 2) +
+        xlab('Sub-basin') + ylab('Value') +
+        ggtitle(paste0("Performance - ",code))
   #print(p)
   if(save) htmlwidgets::saveWidget(plotly::ggplotly(p), paste0(path, "/",file,".html"))
   else ggplotly(p)
@@ -183,14 +187,16 @@ plot_stat_calibration = function(list, code, path, file, save = FALSE){
 plot_diff = function(diff_, comp = FALSE, base, it){
   options(scipen = 999)
   if(comp) diff_ <- diff_baseline(base, it)
-  for(i in 1:length(diff_)){
+  for(i in seq_len(length(diff_))) {
     if(i == 1) df_diff <- data.frame(diff_$r2$ID)
     df_diff <- data.frame(df_diff, diff_[[i]]$diff)
     if(i == length(diff_)) names(df_diff) <- c("ID",names(diff_))
   }
   df <- reshape2::melt(df_diff, id.vars = 'ID', variable.name = 'Indicator')
-  p <- ggplot(df, aes(ID, value)) + geom_point(aes(colour = Indicator), alpha = 0.5, size = 2) +
-    xlab('Sub-basin') + ylab('Value') + ggtitle(paste0('Baseline vs ', code))
+  p <- ggplot(df, aes(ID, value)) +
+        geom_point(aes(colour = Indicator), alpha = 0.5, size = 2) +
+        xlab('Sub-basin') + ylab('Value') +
+        ggtitle(paste0('Baseline vs ', code))
   ggplotly(p)
 }
 
@@ -371,10 +377,10 @@ WASA_calibration_evaluation = function(path, IDs, maxcap, obs, code, results,
   }
 }
 
-diff_baseline = function(base, it){
+diff_baseline = function(base, it) {
   diff_base <- list()
   ID <- base[[1]]$ID
-  for(i in 1:length(base)){
+  for(i in seq_len(length(base))) {
     name <- names(base)[i]
     diff <- base[[i]][,2] - it[[i]][,2]
     diff_base[[name]] <- data.frame(ID, diff)
@@ -382,7 +388,7 @@ diff_baseline = function(base, it){
   return(diff_base)
 }
 
-mean_performance = function(complete, remove_res = 0){
+mean_performance = function(complete, remove_res = 0) {
   #remove_res: IDs of reservoirs you don't want to consider
   mean_p <- data.frame(r2 = 0, NSE = 0, PBIAS = 0, KGE = 0, NRMSE = 0)
   mean_p$r2 <- mean(complete$r2[,2][!(complete$r2$ID %in% remove_res)])

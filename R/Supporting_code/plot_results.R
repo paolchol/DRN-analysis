@@ -47,7 +47,7 @@ plot_calibration_static = function(it, base, obs, ID, code){
 
 path <- 'here insert the path to the folder where .Rdata is stored'
 # Example:
-path <- "C:/Users/Utente/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes"
+path <- "C:/Directory_thesis_codes"
 setwd(path)
 
 #Load the necessary data
