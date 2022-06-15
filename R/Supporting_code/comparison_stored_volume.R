@@ -22,10 +22,6 @@ perc_increment = function(xi, xf){
 
 # Stored volume --------------------------------------------------------------
 
-load("./Data/Analysis/Downstreamness/Dsv_AR_prova.Rdata")
-
-prova <- Dsv_AR
-
 load("./Data/Analysis/Downstreamness/Dsv_AR.Rdata")
 load("./Data/Analysis/Downstreamness/DRN_AR_vol_mean.Rdata") #DRN stored volume
 load("./Data/Analysis/Downstreamness/DRN_SR_vol_mean.Rdata")
@@ -48,15 +44,15 @@ DRN_AR_vol <- apply(DRN_AR_vol_mean[, 2:ncol(DRN_AR_vol_mean)], 1, sumx)
 DRN_SR_vol <- apply(DRN_SR_vol_mean[, 2:ncol(DRN_SR_vol_mean)], 1, sumx)
 
 #Stored volume
-SV_AR <- res_AR_vol + DRN_AR_vol
+SV_AR <- res_AR_vol + DRN_AR_vol*abs(SVperc)
 SV_LR <- res_LR_vol
-SV_SR <- res_SR_vol + DRN_SR_vol
+SV_SR <- res_SR_vol + DRN_SR_vol*abs(SVperc)
 SV_N <- res_N_vol
 
 df <- data.frame(date = Dsv_AR$date,
                  AR = SV_AR, LR = SV_LR,
                  SR = SV_SR, N = SV_N,
-                 DRN_AR = DRN_AR_vol, DRN_SR = DRN_SR_vol)
+                 DRN_AR = DRN_AR_vol*abs(SVperc), DRN_SR = DRN_SR_vol*abs(SVperc))
 plot_df_interactive(df, t = 'Stored volumes')
 
 plot(perc_increment(DRN_SR_vol, DRN_AR_vol))
@@ -90,3 +86,23 @@ p <- ggplot() +
 
 print(p)
 plot.save(p, width = 1280, height = 657, filename = "./Plots/stored_vol_pres.png")
+
+
+# Stored volume vs storage capacity ---------------------------------------
+
+lake_maxvol <- read.table("./Data/Scenarios/AR/lake_maxvol.dat", skip = 2)
+lake_number <- read.table("./Data/Scenarios/AR/lake_number.dat", skip = 2)
+sbs <- lake_number[, 1]
+
+totcap <- 0
+for (class in 1:5){
+  for (sb in sbs){
+    idx1 <- lake_number[, 1] == sb
+    idx2 <- lake_maxvol[, 1] == sb
+    totcap <- totcap + lake_number[idx1, class]*lake_maxvol[idx2, class]
+  }
+}
+
+SVperc <- perc_increment(totcap, DRN_AR_vol)
+plot(SVperc)
+

@@ -104,7 +104,7 @@ HDNR_vol <- get_mean_volume(HDNR_df, class3, HDNR_vol, 3)
 HDNR_vol <- get_mean_volume(HDNR_df, class4, HDNR_vol, 4)
 HDNR_vol <- get_mean_volume(HDNR_df, class5, HDNR_vol, 5)
 
-save(HDNR_vol, file = "./Data/Downstreamness/DRN_AR_vol_sum.Rdata")
+save(HDNR_vol, file = "./Data/Analysis/Downstreamness/DRN_AR_vol_sum.Rdata")
 
 #Compute the Dsv
 dx_hdnr <- HDNR_df$dx
@@ -145,8 +145,8 @@ plot_df_interactive(Dsv_nH)
 mean(Dsv_r$Dsv)
 mean(Dsv_nH$Dsv)
 
-Dsv_AR <- Dsv_r
-save(Dsv_AR, file = "./Data/Analysis/Downstreamness/Dsv_AR_prova.Rdata")
+Dsv_Alt <- Dsv_r
+save(Dsv_Alt, file = "./Data/Analysis/Downstreamness/Dsv_Alt.Rdata")
 
 
 #Save
