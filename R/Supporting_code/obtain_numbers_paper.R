@@ -14,6 +14,8 @@ perc_increment = function(xi, xf){
   return((xf-xi)/xi * 100)
 }
 
+perc_increment(10, 19)
+
 #Table of number of months in the phases
 table <- data.frame(matrix(NA, 4, 4))
 names(table) <- c("AR", "LR", "SR", "N")
@@ -42,8 +44,8 @@ for (i in c(1, 3)){
 # Percentage increment in the Dsc and Dsv ---------------------------------
 
 #Dsc
-load("./Data/Analysis/Downstreamness/Dsc_r.Rdata")
-load("./Data/Analysis/Downstreamness/Dsc_nH.Rdata")
+load("./Data/Analysis/Downstreamness/Dsc_AR.Rdata")
+load("./Data/Analysis/Downstreamness/Dsc_LR.Rdata")
 
 Dsc_AR <- Dsc_r
 Dsc_LR <- Dsc_nH
@@ -55,8 +57,8 @@ max(pi)
 min(pi)
 
 #Dsv
-load("./Data/Analysis/Downstreamness/Dsv_r.Rdata")
-load("./Data/Analysis/Downstreamness/Dsv_nH.Rdata")
+load("./Data/Analysis/Downstreamness/Dsv_AR.Rdata")
+load("./Data/Analysis/Downstreamness/Dsv_LR.Rdata")
 load("./Data/Analysis/Downstreamness/Dsv_SR.Rdata")
 load("./Data/Analysis/Downstreamness/Dsv_N.Rdata")
 
@@ -177,3 +179,41 @@ for (year in Dsc_AR$date){
 }
 
 sum(Dsc_long$value > Dsv_AR$Dsv)/length(Dsv_AR$Dsv)*100
+
+
+# Dsv modified ------------------------------------------------------------
+
+load("./Data/Analysis/Downstreamness/Dsv_AR_new.Rdata")
+load("./Data/Analysis/Downstreamness/Dsv_LR_new.Rdata")
+load("./Data/Analysis/Downstreamness/Dsv_N_new.Rdata")
+load("./Data/Analysis/Downstreamness/Dsv_SR_new.Rdata")
+
+idx <- which(Dsv_AR$date > "2000-01-01")
+mod <- sum(Dsv_AR$Dsv_modified[idx] < Dsv_LR$Dsv[idx])/length(Dsv_AR$date[idx])*100
+or <- sum(Dsv_AR$Dsv[idx] < Dsv_LR$Dsv[idx])/length(Dsv_AR$date[idx])*100
+
+perc_increment(or, mod)
+perc_increment(sum(Dsv_AR$Dsv[idx] < Dsv_LR$Dsv[idx]), sum(Dsv_AR$Dsv_modified[idx] < Dsv_LR$Dsv[idx]))
+
+mean(perc_increment(Dsv_N$Dsv, Dsv_SR$Dsv))
+
+mean(perc_increment(Dsv_LR$Dsv, Dsv_AR$Dsv_modified))
+mean(perc_increment(Dsv_LR$Dsv, Dsv_AR$Dsv))
+mean(perc_increment(Dsv_N$Dsv, Dsv_SR$Dsv_modified))
+
+
+# Dsc increases -----------------------------------------------------------
+
+load("./Data/Analysis/Downstreamness/Dsc_AR.Rdata")
+
+Dsc_r$increase <- 0
+for (i in 2:nrow(Dsc_r)){
+  Dsc_r$increase[i] <- perc_increment(Dsc_r$Dsc[i-1], Dsc_r$Dsc[i])
+}
+
+Dsc_r[order(Dsc_r$increase, decreasing = F), 1]
+
+write.table(Dsc_r, './Data/Analysis/Downstreamness/Dsc_res.txt')
+
+perc_increment(Dsc_r$Dsc[Dsc_r$date == 1995], Dsc_r$Dsc[Dsc_r$date == 2000])
+

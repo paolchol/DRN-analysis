@@ -6,14 +6,14 @@ library(rlist)
 library(tidyverse)
 
 #Pre-Processing for WASA
-#library(lumpR)
+# library(lumpR)
 
 #Visualization
 library(ggplot2)
 require(scales)
 library(gridExtra)
 library(plotly)
-library(hrbrthemes)
+# library(hrbrthemes)
 
 #Georeferenced data
 library(deldir)

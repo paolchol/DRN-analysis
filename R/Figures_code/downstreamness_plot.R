@@ -2,10 +2,10 @@
 
 # Setup -------------------------------------------------------------------
 
-setwd("C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
-source("./Libraries/Libraries.R")
-source("./Libraries/Functions.R")
-source("./Libraries/Functions_MC.R")
+setwd("C:/Directory_thesis_codes")
+source("./R/Libraries/Libraries.R")
+source("./R/Libraries/Functions.R")
+source("./R/Libraries/Functions_MC.R")
 
 #Meteorological drought period
 date_ranges_SPI <- data.frame(

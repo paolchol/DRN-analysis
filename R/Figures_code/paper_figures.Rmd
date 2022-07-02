@@ -1,13 +1,25 @@
 ---
-title: "Code to generate the figures needed in 'The influence of small reservoirs on hydrological drought propagation in space and time'"
+title: Code to generate the figures needed in 'The influence of small reservoirs on
+  hydrological drought propagation in space and time'
 author: "Paolo Colombo"
 date: "08/05/2022"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
-# Load general libraries and functions
-```{r}
-setwd('C:/Directory_thesis_codes')
+# Setup
+
+Set the working directory and load general libraries and custom functions.
+```{r, setwd, include = FALSE}
+knitr::opts_knit$set(root.dir = "C:/Directory_thesis_codes")
+```
+
+```{r, setup, include = FALSE}
+setwd("C:/Directory_thesis_codes")
+source("./R/Libraries/Libraries.R")
+source("./R/Libraries/Functions.R")
+source("./R/Libraries/Functions_MC.R")
 ```
 
 # Figure generation
@@ -16,15 +28,160 @@ Map of the study area localization on the left. Centralized reservoirs visualiza
 Made in QGIS for now. A code can be written by loading the shapefiles used there.
 
 ## Figure 2
-Comparison between the modelled and observed volumes of the reservoirs.
-### Version 1
-*Line graph of Arrojado Lisboa modelled vs observed volumes*
-
-### Version 2 
-*Scatterplot of modelled vs observed volumes. Arrojado Lisboa, Pedras Brancas, Fogareiro*
-
-## Figure 3
 Graphical representation of the Drought Cycle Analysis, from Ribeiro Neto et al., 2022.
-![Drought Cycle Analysis quadrant representation]('Figures and tables/DCA_wheel_update.jpg')
+![Drought Cycle Analysis quadrant representation](C:/Directory_thesis_codes/Figures and tables/DCA_wheel_update.jpg)
 
-## Figure 4
+## Figure 6
+
+```{r figure 6}
+setwd("C:/Directory_thesis_codes")
+source("./R/Libraries/Libraries.R")
+source("./R/Libraries/Functions.R")
+
+DCA_real <- list.load("./Data/DCA/DCA_real.RData")
+DCA_noH <- list.load("./Data/DCA/DCA_noH.RData")
+DCA_obs <- list.load("./Data/DCA/DCA_obs.RData")
+DCA_SR <- list.load("./Data/DCA/DCA_SR.RData")
+DCA_N <- list.load("./Data/DCA/DCA_N.RData")
+
+rename_scenarios = function(df){
+  #df BEFORE reshape::melt!
+  names(df)[names(df) == "Real"] <- "AR"
+  names(df)[names(df) == "noHDNR"] <- "LR"
+  return(df)
+}
+
+#Meteorological drought periods
+#Based on Marengo et al., 2016
+date_ranges_Marengo <- data.frame(
+  from = as.Date(c("1981-01-01", "1982-01-01", "1992-01-01", "1997-01-01", "2001-01-01", "2005-01-01", "2007-01-01", "2010-01-01")),
+  to = as.Date(c("1981-12-01", "1983-12-01", "1993-12-01", "1998-12-01", "2002-12-01", "2005-12-01", "2007-12-01", "2018-12-01"))
+)
+#Based on SPI
+# negSPI <- DCA_real$Banabuiu$date[DCA_real$Banabuiu$PI < 0]
+# negSPI
+date_ranges_SPI <- data.frame(
+  from = as.Date(c("1980-12-01", "1987-05-01", "1992-05-01", "1997-05-01", "2001-02-01", "2005-02-01", "2010-05-01", "2012-05-01", "2014-06-01")),
+  to = as.Date(c("1984-03-01", "1988-04-01", "1994-04-01", "1999-12-01", "2002-02-01", "2005-12-01", "2010-12-01", "2014-01-01", "2018-12-01"))
+)
+
+
+#Arrojado Lisboa
+df <- data.frame(date = DCA_real[['156']]$date, Real = DCA_real[['156']]$WSI, noHDNR = DCA_noH[['156']]$WSI)
+plot_df_interactive(df)
+
+df <- rename_scenarios(df)
+df <- reshape2::melt(df, id.vars = 'date', variable.name = 'Scenario')
+
+date_ranges <- date_ranges_SPI
+
+p <- ggplot() +
+  #Add the drought rectangles
+  geom_rect(data = date_ranges, aes(xmin = from, xmax = to, ymin = -Inf, ymax = Inf), alpha = 0.4) +
+  #Add the VD lines
+  geom_line(data = df, aes(x = date, y = value, linetype = Scenario), alpha = 0.5, size = 1.25) +
+  #VD = 0 line
+  geom_hline(yintercept = 0, color = 'tomato2', linetype = "dashed", size = 1, alpha = 0.8) +
+  #geom_text(aes(as.Date("1985-01-01"), 0, label = "VD = 0", vjust = -1, hjust = 0)) +
+  scale_y_continuous(name = 'Volume Deviation (VD)', limits = c(-1, 1)) +
+  scale_x_date(name = 'Date', date_breaks = "2 years", date_labels = '%Y', limits = as.Date(c("1980-01-01", "2018-12-01")), expand = c(0,0)) +
+  theme(axis.text.x = element_text(size = 16),
+        axis.text.y = element_text(size = 20),
+        axis.title = element_text(size = 22),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        legend.position = "bottom")
+  #scale_color_manual(values = c("royalblue3", "steelblue"))
+  #scale_color_manual(values = c("salmon1", "royalblue"))
+
+print(p)
+plot.save(p, width = 1280, height = 657, filename = "./Plots/vd_ARLR_present.png")
+
+
+
+
+```
+
+## Figure 8
+
+```{r figure 8a}
+setwd("C:/Directory_thesis_codes")
+load("./Data/Analysis/Downstreamness/Dsv_AR_new.Rdata")
+load("./Data/Analysis/Downstreamness/Dsv_LR_new.Rdata")
+load("./Data/Analysis/Downstreamness/Dsv_N.Rdata")
+load("./Data/Analysis/Downstreamness/Dsv_SR.Rdata")
+df <- data.frame(date = Dsv_AR$date,
+                 AR = Dsv_AR$Dsv, LR = Dsv_LR$Dsv, 
+                 N = Dsv_N$Dsv, SR = Dsv_SR$Dsv)
+df <- reshape2::melt(df, id.vars = 'date', variable.name = 'Scenario')
+df$Scenario <- as.character(df$Scenario)
+
+date_ranges <- data.frame(
+  from = as.Date(c("1980-12-01", "1987-05-01", "1992-05-01", "1997-05-01", "2001-02-01", "2005-02-01", "2010-05-01", "2012-05-01", "2014-06-01")),
+  to = as.Date(c("1984-03-01", "1988-04-01", "1994-04-01", "1999-12-01", "2002-02-01", "2005-12-01", "2010-12-01", "2014-01-01", "2018-12-01"))
+)
+#Colours
+#         AR        LR          N         SR
+col <- c("#a651a3", "#429649", "#e2703a", "#046582")
+p <- ggplot() +
+  geom_rect(data = date_ranges, aes(xmin = from, xmax = to, ymin = -Inf, ymax = Inf), alpha = 0.2) +
+  geom_line(data = df, aes(x = date, y = value, colour = Scenario, linetype = Scenario), size = 1.25, alpha = 0.9) +
+  scale_y_continuous(name = expression(paste('D'['SV'], " [%]")), limits = c(25, 75)) +
+  scale_x_date(name = 'Date', date_breaks = "2 years", date_labels = '%Y', limits = as.Date(c("1980-01-01", "2018-12-01")), expand = c(0,0)) +
+  scale_color_manual(values = col) +
+  theme(
+        axis.text.x = element_text(size = 18),
+        axis.text.y = element_text(size = 20),
+        axis.title = element_text(size = 22),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        legend.position = "bottom"
+        )
+
+print(p)
+
+plot.save(p, width = 1920, height = 1080, filename = "./Figures and tables/paper/Figure_8a.png")
+```
+
+```{r figure 8b}
+setwd("C:/Directory_thesis_codes")
+load("./Data/Analysis/Downstreamness/Dsv_AR_new.Rdata")
+load("./Data/Analysis/Downstreamness/Dsv_LR_new.Rdata")
+load("./Data/Analysis/Downstreamness/Dsv_N.Rdata")
+load("./Data/Analysis/Downstreamness/Dsv_SR_new.Rdata")
+
+df <- data.frame(date = Dsv_AR$date,
+                 `AR modified` = Dsv_AR$Dsv_modified, LR = Dsv_LR$Dsv,
+                 N = Dsv_N$Dsv, `SR modified` = Dsv_SR$Dsv_modified)
+df <- reshape2::melt(df, id.vars = 'date', variable.name = 'Scenario')
+df$Scenario <- as.character(df$Scenario)
+df$Scenario[df$Scenario == "AR.modified"] <- "AR modified"
+df$Scenario[df$Scenario == "SR.modified"] <- "SR modified"
+
+date_ranges <- data.frame(
+  from = as.Date(c("1980-12-01", "1987-05-01", "1992-05-01", "1997-05-01", "2001-02-01", "2005-02-01", "2010-05-01", "2012-05-01", "2014-06-01")),
+  to = as.Date(c("1984-03-01", "1988-04-01", "1994-04-01", "1999-12-01", "2002-02-01", "2005-12-01", "2010-12-01", "2014-01-01", "2018-12-01"))
+)
+#Colours
+#         AR        LR              N           SR
+col <- c("#a651a3", "#429649", "#e2703a", "#046582")
+p <- ggplot() +
+  geom_rect(data = date_ranges, aes(xmin = from, xmax = to, ymin = -Inf, ymax = Inf), alpha = 0.2) +
+  geom_line(data = df, aes(x = date, y = value, colour = Scenario, linetype = Scenario), size = 1.25, alpha = 0.9) +
+  scale_y_continuous(name = expression(paste('D'['SV'], " [%]")), limits = c(25, 75)) +
+  scale_x_date(name = 'Date', date_breaks = "2 years",
+               date_labels = '%Y', limits = as.Date(c("1980-01-01", "2018-12-01")), expand = c(0,0)) +
+  scale_color_manual(values = col) +
+  theme(
+        axis.text.x = element_text(size = 18),
+        axis.text.y = element_text(size = 20),
+        axis.title = element_text(size = 22),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        legend.position = "bottom"
+        )
+
+print(p)
+
+plot.save(p, width = 1920, height = 1080, filename = "./Figures and tables/paper/Figure_8b.png")
+```
