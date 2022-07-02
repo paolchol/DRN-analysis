@@ -9,10 +9,10 @@ library(tidyverse)
 # library(lumpR)
 
 #Visualization
-library(ggplot2)
-require(scales)
-library(gridExtra)
-library(plotly)
+# library(ggplot2)
+# require(scales)
+# library(gridExtra)
+# library(plotly)
 # library(hrbrthemes)
 
 #Georeferenced data
