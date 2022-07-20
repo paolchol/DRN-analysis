@@ -1,10 +1,10 @@
 #Functions to execute the time series generation
 
 create_date_vector <- function(start_y, end_y, start_m = 01, end_m = 12,
-                              start_d = 01, end_d = 31) {
+                              start_d = 01, end_d = 31, by = "days") {
   start <- paste0(start_d, "/0", start_m, "/", start_y)
   end <- paste0(end_d, "/", end_m, "/", end_y)
-  date <- seq(as.Date(start, "%d/%m/%Y"), as.Date(end, "%d/%m/%Y"), by = "days")
+  date <- seq(as.Date(start, "%d/%m/%Y"), as.Date(end, "%d/%m/%Y"), by = by)
   return(date)
 }
 

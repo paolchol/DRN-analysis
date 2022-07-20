@@ -4,25 +4,25 @@
 # Script setup ------------------------------------------------------------
 
 #Directory and paths
-setwd("C:/Users/paolo/OneDrive - Politecnico di Milano/Backup PC/Uni/Thesis/Directory_thesis_codes")
-path_maxcap <- "./Inputs/Model_input/Base/Reservoir/reservoir.dat"
+setwd("C:/Directory_thesis_codes")
+path_maxcap <- "./Input/Model_input/Base/Reservoir/reservoir.dat"
 
-source("./Libraries/Libraries.R")
-source("./Libraries/Functions.R")
-# source("./Libraries/Functions_TG.R")
-# source("./Libraries/Functions_DP.R")
-source("./Libraries/Functions_CO.R")
-source("./Libraries/Functions_MC.R")
-source("./Libraries/Functions_AN.R")
+source("./R/Libraries/Libraries.R")
+source("./R/Libraries/Functions.R")
+# source("./R/Libraries/Functions_TG.R")
+# source("./R/Libraries/Functions_DP.R")
+source("./R/Libraries/Functions_CO.R")
+source("./R/Libraries/Functions_MC.R")
+source("./R/Libraries/Functions_AN.R")
 
 #Load the IDs of the subbasins in the Banabuiu region
-load("./Inputs/General/IDs.RData")
-subID <- read.table("./Inputs/General/reservoir_name_ID.txt", header = TRUE, sep = "\t")
+load("./Data/Generated/General/IDs.RData")
+subID <- read.table("./Data/Generated/General/reservoir_name_ID.txt", header = TRUE, sep = "\t")
 
 # Analysis setup ----------------------------------------------------------
 
 #Load precipitation data
-prec <- read.table("./Inputs/Model_input/Base/Time_series/rain_daily.dat", skip = 3)
+prec <- read.table("./Input/Model_input/Base/Time_series/rain_daily.dat", skip = 3)
 columns <- c("date", "doy", subID$SubbasinID)
 names(prec) <- columns
 prec$date <- change_date_WASA_input(prec$date)

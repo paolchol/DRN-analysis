@@ -40,7 +40,7 @@ Map of the study area localization on the left. Centralized reservoirs visualiza
 
 ## Figure 5
 
-```{r figure 5}
+```{r figure 5a}
 setwd("C:/Directory_thesis_codes")
 
 #Custom functions
@@ -70,7 +70,7 @@ for(i in seq_len(length(DCA_AR))){
   names(df)[names(df) == "new"] <- names(DCA_AR)[i]
 }
 
-newdf <- df[, 1:ncol(df)-1]
+newdf <- df[, seq_len(ncol(df)-1)]
 bounds <- find_bounds(newdf, 1, 1, ma = TRUE, 6)
 bounds[bounds == Inf | bounds == -Inf] <- 0
 df <- df[, c(1, ncol(df))]
@@ -118,6 +118,30 @@ print(p)
 
 plot.save(p, width = 1920, height = 1080, filename = "./Figures and tables/paper/Figure_5.png")
 ```
+
+```{r figure 5b}
+setwd("C:/Directory_thesis_codes")
+
+sub <- readOGR("./Data/Shapefile/subbasins_cut_geomfix.shp")
+SPI_list <- list.load("./Data/Analysis/DCA/SPI_list.RData")
+DCA_AR <- list.load("./Data/Analysis/DCA/DCA_AR.RData")
+
+df <- as.data.frame(array(dim = c(length(SPI_list), 3)))
+names(df) <- c("SubbasinID", "SPI-1992", "SPI-2012")
+df$SubbasinID <- names(SPI_list)
+
+idx1992 <- DCA_AR[["123"]]$date %in% create_date_vector(1992, 1993)
+idx2012 <- DCA_AR[["123"]]$date %in% create_date_vector(2012, 2018)
+for(name in names(SPI_list)){
+  df$`SPI-1992`[df$SubbasinID %in% name] <- mean(SPI_list[[name]][["fitted"]][idx1992], na.rm = T)
+  df$`SPI-2012`[df$SubbasinID %in% name] <- mean(SPI_list[[name]][["fitted"]][idx2012], na.rm = T)
+}
+
+sub_merge <- merge(sub, df, by = "SubbasinID")
+
+writeOGR(sub_merge, dsn = "./Data/Shapefile/analysis", layer = "subbasin_SPI_all", driver = "ESRI Shapefile")
+```
+
 
 ## Figure 6
 
