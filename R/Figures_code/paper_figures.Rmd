@@ -40,7 +40,11 @@ Map of the study area localization on the left. Centralized reservoirs visualiza
 
 ## Figure 5
 
+<<<<<<< HEAD
 ```{r figure 5a}
+=======
+```{r figure 5}
+>>>>>>> e36f59d9ab7ce9f05704d98d17b2179e5c006de2
 setwd("C:/Directory_thesis_codes")
 
 #Custom functions
@@ -63,6 +67,7 @@ find_bounds = function(df, x = 1, skip = 0, ma = FALSE, n = 5){
 
 #Cunstruct the dataframe
 DCA_AR <- list.load("./Data/Analysis/DCA/DCA_AR.RData")
+<<<<<<< HEAD
 
 df <- data.frame(date = DCA_AR$Banabuiu$date)
 for(i in seq_len(length(DCA_AR))){
@@ -116,6 +121,61 @@ p <- ggplot() +
 
 print(p)
 
+=======
+
+df <- data.frame(date = DCA_AR$Banabuiu$date)
+for(i in seq_len(length(DCA_AR))){
+  df$new <- DCA_AR[[i]]$PI
+  names(df)[names(df) == "new"] <- names(DCA_AR)[i]
+}
+
+newdf <- df[, 1:ncol(df)-1]
+bounds <- find_bounds(newdf, 1, 1, ma = TRUE, 6)
+bounds[bounds == Inf | bounds == -Inf] <- 0
+df <- df[, c(1, ncol(df))]
+df$lowbound <- bounds$low
+df$highbound <- bounds$high
+df$ma <- ma(df$Banabuiu, 6)
+df <- df[14:nrow(df), ]
+
+#Plot
+col <- c("Mean precipitation" = "#293462",
+         "Sub-basin variation" = "#F24C4C")
+p <- ggplot() +
+  #Add the droughts rectangles
+  # geom_rect(data = date_ranges, aes(xmin = from, xmax = to, ymin = -Inf, ymax = Inf), alpha = 0.4) +
+  #Add the sub-basins variation
+  geom_ribbon(data = df, aes(x = date, ymin = lowbound, ymax = highbound, fill = "Sub-basin variation"), alpha = 0.5) +
+  #Add the mean line
+  geom_line(data = df, aes(x = date, y = ma, colour = "Mean precipitation"), size = 1.25) +
+  #Add the drought indicator lines
+  geom_hline(yintercept = 0, color = 'lightblue', linetype = "dashed", size = 1.25, alpha = 0.8) +
+  geom_text(aes(as.Date("1985-01-01"), 0, label = "Normal", vjust = -0.5, hjust = 0), size = 6) +
+  geom_hline(yintercept = -1, color = 'yellow', linetype = "dashed", size = 1.25, alpha = 0.8) +
+  geom_text(aes(as.Date("1985-01-01"), -1, label = "Moderately dry", vjust = -0.5, hjust = 0), size = 6) +
+  geom_hline(yintercept = -1.5, color = 'orange', linetype = "dashed", size = 1.25, alpha = 0.8) +
+  geom_text(aes(as.Date("1985-01-01"), -1.5, label = "Severely dry", vjust = -0.5, hjust = 0), size = 6) +
+  geom_hline(yintercept = -2, color = 'red', linetype = "dashed", size = 1.25, alpha = 0.8) +
+  geom_text(aes(as.Date("1985-01-01"), -2, label = "Extremely dry", vjust = -0.5, hjust = 0), size = 6) +
+  #Modify the axis
+  scale_y_continuous(name = 'SPI-12', limits = c(-4, 4), breaks = seq(-4, 4, 1)) +
+  scale_x_date(name = 'Date', date_breaks = "2 years", date_labels = '%Y', limits = as.Date(c("1980-01-01", "2018-12-01")), expand = c(0,0)) +
+  #Add the legend
+  scale_color_manual(name = "", values = col) +
+  scale_fill_manual(name = "", values = col) +
+  theme(
+        axis.text.x = element_text(size = 16),
+        axis.text.y = element_text(size = 20),
+        axis.title = element_text(size = 22),
+        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        legend.position = "bottom",
+        panel.background = element_rect(fill = "white", colour = "grey50")
+        )
+
+print(p)
+
+>>>>>>> e36f59d9ab7ce9f05704d98d17b2179e5c006de2
 plot.save(p, width = 1920, height = 1080, filename = "./Figures and tables/paper/Figure_5.png")
 ```
 
