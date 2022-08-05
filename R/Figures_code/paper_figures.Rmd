@@ -1,6 +1,5 @@
 ---
-title: Code to generate the figures needed in 'The influence of small reservoirs on
-  hydrological drought propagation in space and time'
+title: "Code and information needed to generate the figures needed in 'The influence of small reservoirs on hydrological drought propagation in space and time'"
 author: "Paolo Colombo"
 date: "08/05/2022"
 output:
@@ -32,15 +31,18 @@ source("./R/Libraries/Functions_MC.R")
 
 ## Figure 1
 
-Map of the study area localization on the left. Centralized reservoirs visualization and density representation of the DRN on the right. Made in QGIS utilizing the shapefiles and rasters found in ./Data/DNR and ./Data/Shapefile. ![Study area framing. North-East Brazil, Ceará and Banabuiú catchment on the left. On the right, centralized reservoirs location and storage capacity, overlayed to DRN's density in the Banabuiú basin.](C:/Directory_thesis_codes/Figures%20and%20tables/paper/Figure_1.png)
+Map of the study area localization on the left. Centralized reservoirs visualization and density representation of the DRN on the right. Made in QGIS utilizing the shapefiles and rasters found in ./Data/DNR and ./Data/Shapefile. The density visualization was made with the QGIS “Density Analysis” plugin. The field NUMPOINTs was then divided by the area of each cell ($25 \hspace{0.1cm} km^2$) to obtain the density ($n°small\hspace{0.1cm}reservoirs/km^2$). The equation used in the new field was: "NUMPOINTS"/($area/1000000) ![Study area framing. North-East Brazil, Ceará and Banabuiú catchment on the left. On the right, centralized reservoirs location and storage capacity, overlayed to DRN's density in the Banabuiú basin.](C:/Directory_thesis_codes/Figures%20and%20tables/paper/Figure_1.png)
 
 ## Figure 2
 
 ![Graphical representation of the Drought Cycle Analysis, from Ribeiro Neto et al. (2022). WSI: Water Scarcity Index, PI: Precipitation Index.](C:/Directory_thesis_codes/Figures%20and%20tables/paper/Figure%202.jpg){width="682"}
 
+## Figure 4
+
 ## Figure 5
 
-<<<<<<< HEAD
+SPI-12 visualization. a.) 6-months moving average of the SPI-12 computed on the basin’s average precipitation and variability spectrum across the sub-basins. Spatial distribution of  SPI-12 in Banabuiu watershed sub-basins averaged for b.) 1992-1993 drought and c.) 2012-2018 drought.
+
 ```{r figure 5a}
 setwd("C:/Directory_thesis_codes")
 
@@ -143,7 +145,6 @@ sub_merge <- merge(sub, df, by = "SubbasinID")
 writeOGR(sub_merge, dsn = "./Data/Shapefile/analysis", layer = "subbasin_SPI_all", driver = "ESRI Shapefile")
 ```
 
-
 ## Figure 6
 
 Volume Deviation visualization for all modeled scenarios. Different relationships between storage conditions and the DNR effect are indicated.
@@ -187,9 +188,70 @@ print(p)
 plot.save(p, width = 1920, height = 1080, filename = "./Figures and tables/paper/Figure_6.png")
 ```
 
+## Figure 7
+
 ## Figure 8
 
-```{r figure 8a}
+Barplot of the drought phases percentages in the four scenarios. Percentage of months in the four drought phases in AR, LR, SR and N scenarios computed for for Arrojado Lisboa.
+
+```{r figure 8}
+setwd("C:/Directory_thesis_codes")
+source("./R/Libraries/Libraries.R")
+source("./R/Libraries/Libraries_plot.R")
+source("./R/Libraries/Functions.R")
+source("./R/Libraries/Functions_MC.R")
+
+library(scales)
+
+DCA_AR <- list.load("./Data/Analysis/DCA/DCA_AR.RData")
+DCA_LR <- list.load("./Data/Analysis/DCA/DCA_LR.RData")
+DCA_SR <- list.load("./Data/Analysis/DCA/DCA_SR.RData")
+DCA_N <- list.load("./Data/Analysis/DCA/DCA_N.RData")
+
+table <- data.frame(matrix(NA, 5, 4))
+names(table) <- c("AR", "LR", "SR", "N")
+for(i in seq_len(4)){
+  table$AR[i] <- sum(DCA_AR[['156']]$quadrant == i, na.rm = TRUE)
+  table$LR[i] <- sum(DCA_LR[['156']]$quadrant == i, na.rm = TRUE)
+  table$SR[i] <- sum(DCA_SR$quadrant == i, na.rm = TRUE)
+  table$N[i] <- sum(DCA_N$quadrant == i, na.rm = TRUE)
+}
+table[5, ] <- apply(table, 2, function(x) sum(x, na.rm = TRUE))
+table <- apply(table, 2, function(x) x/457*100)
+table <- as.data.frame(table)
+table <- table[-5,]
+table$`Drought phase` <- c(
+                  "1. Non-occurrence of drought",
+                  "2. Meteorological",
+                  "3. Hydro-meteorological",
+                  "4. Hydrological")
+
+table <- pivot_longer(table, cols = 1:4, names_to = "Scenario", values_to = "Percentage")
+
+p <- ggplot(table, aes(fill = `Drought phase`, y = Percentage, x = Scenario)) + 
+      geom_bar(position = "stack", stat = "identity", 
+               alpha = 0.5, colour = "black") +
+      scale_fill_manual(values = c("#377EB8", "#FFD92F", "#E41A1C", "#B15928")) +
+      scale_y_continuous(breaks = round(seq(0, 100, by = 10))) +
+      theme(
+          axis.title = element_text(size = 26),
+          axis.text.x = element_text(size = 24),
+          axis.text.y = element_text(size = 24),
+          legend.title = element_text(size = 24, face = "bold"),
+          legend.text = element_text(size = 20),
+          # legend.position = "bottom",
+          panel.background = element_rect(fill = "white"),
+          panel.grid.major.x = element_blank(),
+          panel.grid.major.y = element_line(colour = alpha("grey50", 0.7))
+          )
+print(p)
+
+plot.save(p, width = 1920, height = 1440, filename = "./Figures and tables/paper/Figure_8.png")
+```
+
+## Figure 9
+
+```{r figure 9a}
 setwd("C:/Directory_thesis_codes")
 load("./Data/Analysis/Downstreamness/Dsv_AR_new.Rdata")
 load("./Data/Analysis/Downstreamness/Dsv_LR_new.Rdata")
@@ -215,20 +277,20 @@ p <- ggplot() +
   scale_x_date(name = 'Date', date_breaks = "2 years", date_labels = '%Y', limits = as.Date(c("1980-01-01", "2018-12-01")), expand = c(0,0)) +
   scale_color_manual(values = col) +
   theme(
-        axis.text.x = element_text(size = 18),
-        axis.text.y = element_text(size = 20),
-        axis.title = element_text(size = 22),
-        legend.title = element_text(size = 20),
-        legend.text = element_text(size = 18),
+        axis.text.x = element_text(size = 24),
+        axis.text.y = element_text(size = 24),
+        axis.title = element_text(size = 24),
+        legend.title = element_text(size = 26),
+        legend.text = element_text(size = 24),
         legend.position = "bottom"
         )
 
 print(p)
 
-# plot.save(p, width = 1920, height = 1080, filename = "./Figures and tables/paper/Figure_8a.png")
+plot.save(p, width = 1920, height = 1080, filename = "./Figures and tables/paper/Figure_8a.png")
 ```
 
-```{r figure 8b}
+```{r figure 9b}
 setwd("C:/Directory_thesis_codes")
 load("./Data/Analysis/Downstreamness/Dsv_AR_new.Rdata")
 load("./Data/Analysis/Downstreamness/Dsv_LR_new.Rdata")
@@ -258,11 +320,11 @@ p <- ggplot() +
                date_labels = '%Y', limits = as.Date(c("1980-01-01", "2018-12-01")), expand = c(0,0)) +
   scale_color_manual(values = col) +
   theme(
-        axis.text.x = element_text(size = 18),
-        axis.text.y = element_text(size = 20),
-        axis.title = element_text(size = 22),
-        legend.title = element_text(size = 20),
-        legend.text = element_text(size = 18),
+        axis.text.x = element_text(size = 24),
+        axis.text.y = element_text(size = 24),
+        axis.title = element_text(size = 24),
+        legend.title = element_text(size = 26),
+        legend.text = element_text(size = 24),
         legend.position = "bottom"
         )
 

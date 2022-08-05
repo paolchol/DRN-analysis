@@ -1,0 +1,2 @@
+Figure 8
+Downstreamness of Stored Volume for the four modeled scenarios. 8b presents AR and SR $D_{SV}$ modified by multiplying the stored volume in the DRN by the mean ratio between volume and storage capacity (34% increase).
