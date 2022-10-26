@@ -1,4 +1,4 @@
-#Main to launch the core operations
+#Mock-up of a main to launch the core operations
 #
 #The launched operations are all stored in the "Core_code" folder.
 #Each code has the name of the operation it performs.
