@@ -125,8 +125,8 @@
 
 \begin{keypoints}
 \item We evaluated how a dense network of small and unmonitored reservoirs (DRN) impacts drought events in time and space
-\item Drought cycle analyses and the downstreamness concept were coupled with hydrological modeling-based DRN scenarios to assess the impacts in time and space, respectively
-\item The presence of small reservoirs accelerated the transition towards hydrological droughts by 20\% on average and slowed down drought recovery by 25\%, while shifting upstream water storage capacity distribution in space by 8\%
+\item Drought cycle and downstreamness analyses were coupled with hydrological modeling based DRN scenarios to assess impacts in time and space
+\item The DRN accelerated the transition towards hydrological droughts and slowed down drought recovery, while storage capacity was moved upstream
 \end{keypoints}
 
 %% ------------------------------------------------------------------------ %%
@@ -153,8 +153,7 @@ To increase drought preparedness in semi-arid regions many small and medium rese
 \end{abstract}
 
 \section*{Plain Language Summary}
-Human impacts have been found in a broad spectrum of environmental processes and phenomena. Droughts make no exception. Droughts, as periods of exceptional lack of water, are one of the disasters that produce the most intense environmental and socio-economic impacts. One of the most common strategies for reducing drought-related impacts is the construction of small reservoirs to store water. This practice can generate a false sense of water security and increase water demand, which in turn results in more reservoirs being constructed. When the presence of these reservoirs becomes diffused and in high numbers, it may enhance the persistence of droughts, making them longer and more intense. Since these effects are still unclear, we modeled multiple scenarios representing a North-East Brazilian river basin with and without small reservoirs. Through two methods (the Drought Cycle Analysis and the Downstreamness analysis), these scenarios were analyzed to assess the reservoirs’ effects in time and space. We found that in the region drought events last on average 12\% longer due to the small reservoirs’ presence. This is linked to the accelerated transition from meteorological to hydrological drought (+20\%) and the slowdown of the large reservoirs’ recovery from a drought condition (-25\%). We found that the overall storage distribution is shifted upstream by 8\% on average, but when both large and small reservoirs are present the stored volume distribution behavior is not straightforward. The findings confirm the need to consider small reservoirs when addressing drought management policies.
-
+Human impacts have been found in a broad spectrum of environmental processes and phenomena. Droughts make no exception. Droughts, as periods of exceptional lack of water, are one of the disasters that produce the most intense environmental and socio-economic impacts. One of the most common strategies for reducing drought-related impacts is the construction of small reservoirs to store water. When these reservoirs are diffused and in high numbers, their presence may increase droughts intensity and length. Since these effects are still unclear, we modeled multiple scenarios representing a North-East Brazilian river basin with and without small reservoirs. These scenarios were analyzed through two methods to assess the reservoirs’ effects in time and space. We found that drought events last on average 12\% longer due to the small reservoirs’ presence in the region. This is linked to the accelerated transition from meteorological to hydrological drought (+20\%) and the slowdown of the large reservoirs’ recovery from a drought condition (-25\%). The overall storage distribution is shifted upstream by 8\% on average, but when both large and small reservoirs are present the stored volume distribution behavior is not straightforward. The findings confirm the need to consider small reservoirs when addressing drought management policies.
 
 %% ------------------------------------------------------------------------ %%
 %
@@ -240,7 +239,7 @@ The capacity of the DRN-component reservoirs is needed to represent the network 
 The model selected to model the Banabuiú river basin is WASA-SED (Water Availability in Semi-Arid environments-SEDiments), which has been developed within the joint Spanish-Brazilian-German research project SESAM (Sediment Export from Semi-Arid Catchments: Measurement and Modelling) and utilized to simulate North-East Brazil’s conditions \cite{Guntner2002,Guntner2004,Mueller2010}. The model simulates the runoff and erosion processes at meso-scale, for domains ranging from several hundreds to thousands of square kilometers. It uses a hierarchical top-down disaggregation scheme, dividing each sub-basin of the model into landscape units (based on the Soil and Terrain Digital Database (SOTER) concept \cite{Oldeman1993}), represented by multiple terrain components (defined by slope-gradient, length, soil and soil-vegetation components). The hydrological module is fully described in \citeA{Guntner2002} and \citeA{Guntner2004}, implementing for example equations to account for interception losses, evaporation and transpiration (modified Penman-Monteith approach \cite{Shuttleworth1985}) and for infiltration (Green-Ampt approach \cite{Green1911}) and other soil and vegetation related processes. The model can simulate both medium and large  centralized strategic reservoirs and small diffuse networks of reservoirs \cite{Guntner2004}. The user manual, the link to the source code and other useful sources can be found at \url{github.com/TillF/WASA-SED}. Detailed WASA-SED model parameterization for Banabuiú river basin was carried out by \citeA{Costa2013}, and adopted in this work.
 
 \subsubsection{Small reservoirs representation}
-The modeling approach to the reservoirs needs to classify them into strategic and small reservoirs, according to location and size \cite{Guntner2004}. The strategic reservoirs listed in Table~\ref{tab1} are individually parameterized in WASA-SED, also providing their daily regulated discharge time series. Their water balance is calculated explicitly and individually for each reservoir. Due to the uncontrolled and unmonitored nature of small reservoirs composing the DRN, not enough information is available concerning dam building, location, size and water use. They are grouped into 5 storage capacity classes and the water balance is computed for a hypothetical reservoir with mean characteristics, representative of each class and sub-basin. The water storage volume is then given by the product of the water storage of the representative reservoir by the total number of reservoirs from that class within a sub-basin. The generated runoff of the sub-basin is distributed among the reservoir classes through a cascade routing scheme starting from the lowest class to the highest, using a weighting factor computed as a ratio between the runoff contributing area of that reservoir class and the sub-basin area \cite{Mamede2018}. A detailed description of the calculation of water fluxes through the classes of reservoirs can be found in \citeA{Mamede2008}, while equations and other information about the hydrological and reservoir module can be found in \citeA{Guntner2002}.
+The modeling approach to the reservoirs needs to classify them into strategic and small reservoirs, according to location and size \cite{Guntner2004}. The strategic reservoirs (listed in Supporting Information) are individually parameterized in WASA-SED, also providing their daily regulated discharge time series. Their water balance is calculated explicitly and individually for each reservoir. Due to the uncontrolled and unmonitored nature of small reservoirs composing the DRN, not enough information is available concerning dam building, location, size and water use. They are grouped into 5 storage capacity classes and the water balance is computed for a hypothetical reservoir with mean characteristics, representative of each class and sub-basin. The water storage volume is then given by the product of the water storage of the representative reservoir by the total number of reservoirs from that class within a sub-basin. The generated runoff of the sub-basin is distributed among the reservoir classes through a cascade routing scheme starting from the lowest class to the highest, using a weighting factor computed as a ratio between the runoff contributing area of that reservoir class and the sub-basin area \cite{Mamede2018}. A detailed description of the calculation of water fluxes through the classes of reservoirs can be found in \citeA{Mamede2008}, while equations and other information about the hydrological and reservoir module can be found in \citeA{Guntner2002}.
 
 \subsubsection{Calibration and validation}
 Calibration was focused on the “scaling factor” parameter, which modifies the soil saturated hydraulic conductivity, which is the most sensitive parameter \cite{Guntner2002,WASA-SEDManual2021}. The calibration was carried out automatically following the sub-basins routing path of the model from upstream to downstream, testing a set of 35 values on each sub-basin (ranging from 0.2 to 7). For each run, five model performance indexes were computed (R2, NSE, KGE, PBIAS and NRMSE) comparing the modeled volume time series for the sub-basin’s strategic reservoir (or the direct downstream one in case the sub-basin did not present one itself) with the observed one. The performance indexes were selected based on recent usage in hydrological modeling \cite{Marahatta2021,Knoben2019,Uniyal2019}. The parameter that would produce the best performance was selected. The model was calibrated with 70\% of the series, running it from 1980 to 2006, it was then validated on the remaining 30\% of the series, from 2007 to 2018. Wet, normal and dry years were well represented in both the selected periods (calibration and validation) of the gauges. Therefore, the high inter-annual streamflow variability (CV greater than 1) was taken into account for both calibration and validation periods.
@@ -414,41 +413,7 @@ The role of the DRN on the evolution of droughts is multifaceted: in time it inc
 %\appendix
 %\section{Here is a sample appendix}
 
-\newpage
-\appendix
-\section{Additional table}
-
-%Table A
-\begin{table}
- \caption{Appendix: List of centralized reservoirs, with storage capacity and upstream catchment. The table is ordered by decreasing storage capacity. Information retrieved from FUNCEME database \url{funceme.br/hidro-ce-zend/}.}\label{tabA}
- \centering
- \begin{tabular}{c c c c}
- \hline
-  Name  & Year constructed & Storage capacity & Drainage area\\
-  & & [$Hm^3$] & [$km^2$]\\
- \hline
-Arrojado Lisboa 	& 1966 &	 14,221	& 1600\\
-Pedras Brancas	& 1978	& 1,937 &	434\\
-Cedro			& 1906	& 206 &	126\\
-Fogareiro 		& 1996	 & 5,111 & 	119\\
-Cipoada			& 1992	& 351 &	86.1\\
-Pirabibu			& 2000	& 503	& 74\\
-Patu	 			& 1988	& 995	& 71.8\\
-Poço do Barro	& 1956	 & 374 & 52\\
-Serafim Dias 	& 1995 &	1,630 &	43\\
-Umari			& 2011	& 975	& 30\\
-Sao Jose II		& 1992	& 185	& 29.1\\
-Vieirão			& 1988	& 400 &	21\\
-Trapiá II 		& 1992 & 	129 &	18.2\\
-Curral Velho	 	& 2007 & 	79 & 	12.2\\
-Monsenhor Tabosa & 1998 & 77 &	12.1\\
-Quixeramobim 	& 1966 & 7,021 &	7.88\\
-Sao José I		& 1988 & 	188 & 	767\\
-Capitão Mor		& 1988	& 110 &	6\\
-Jatobá 			& 1997 &	40	& 1.07\\
- \hline
- \end{tabular}
-\end{table}
+%\newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %

@@ -1,0 +1,396 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (MiKTeX 21.6) (preloaded format=pdflatex 2021.9.23)  27 OCT 2022 20:53
+entering extended mode
+**./si_Colombo.tex
+(si_Colombo.tex
+LaTeX2e <2021-06-01>
+L3 programming layer <2021-06-01> (agutexSI2019.cls
+
+
+ AGUTeX Journal Style, American Geophysical Union 
+ This version is dated January 14, 2019
+
+
+Document Class: agutexSI2019 01/14/2019
+\c@chapter=\count182
+\c@section=\count183
+\c@subsection=\count184
+\c@subsubsection=\count185
+\c@figure=\count186
+\c@table=\count187
+\mathindent=\dimen138
+\abovefigcaptionskip=\skip47
+\abovetabcaptionskip=\skip48
+\abovetableskip=\skip49
+\belowtabcaptionskip=\dimen139
+\landscapebox=\box50
+\c@plate=\count188
+\savecurrtable=\box51
+\abovetabularskip=\skip50
+\belowtabularskip=\skip51
+\timing=\count189
+\hourcount=\count190
+\oldtime=\count191
+\totpages=\count192
+\belowtitleskip=\dimen140
+\abovesubtitleskip=\dimen141
+\belowsubtitleskip=\dimen142
+\aboveauthorskip=\dimen143
+\belowauthorskip=\dimen144
+\thanksnum=\count193
+\dothanks=\count194
+\thankscounter=\count195
+\titlethanksnum=\count196
+\dotitlethanks=\count197
+\titlethankscounter=\count198
+\thanksnum=\count199
+\dothanks=\count266
+\thankscounter=\count267
+\authorwidth=\dimen145
+\authorbaselineskip=\dimen146
+\aboveaffilskip=\dimen147
+\belowaffilskip=\dimen148
+\affilwidth=\dimen149
+\aboveabstractskip=\dimen150
+\belowabstractskip=\dimen151
+\belowabstractnameskip=\dimen152
+\abstractmargin=\dimen153
+\abovereceivedskip=\skip52
+\aboverevisedskip=\skip53
+\aboveacceptedskip=\skip54
+\abovepublishededskip=\skip55
+\barticle=\box52
+\thanksbox=\box53
+\titlethanksbox=\box54
+\c@appendnum=\count268
+\footnum=\count269
+\savefootnum=\count270
+\ackskip=\skip56
+\saveparskip=\dimen154
+\captionskip=\dimen155
+\PushOneColTopFig=\dimen156
+\PushOneColBotFig=\dimen157
+\PushOneColTopTab=\dimen158
+\PushOneColBotTab=\dimen159
+\PushTwoColTopFig=\dimen160
+\PushTwoColBotFig=\dimen161
+\PushTwoColTopTab=\dimen162
+\PushTwoColBotTab=\dimen163
+\intextfloatskip=\skip57
+\c@appfigure=\count271
+\c@apptable=\count272
+\c@appplate=\count273
+\checkforspace=\dimen164
+\savetopinsert=\box55
+\savebotinsert=\box56
+\secondsavetopinsert=\box57
+\secondsavebotinsert=\box58
+\firstcolbox=\box59
+\secondcolbox=\box60
+\thefirstbox=\box61
+\thesecondbox=\box62
+\firstcol=\dimen165
+\secondcol=\dimen166
+\checkheight=\dimen167
+\loopnum=\count274
+\firstcolsavefignum=\count275
+\footnotebox=\box63
+\ColUsed=\dimen168
+\FigSpace=\dimen169
+\testdblbotins=\box64
+\pageloopnum=\count276
+\endcolsavetopinsert=\box65
+\endcolsavebotinsert=\box66
+\testpagesize=\box67
+\savelastskip=\dimen170
+\partialpage=\box68
+\figandtabnumber=\count277
+\figandtabbox=\box69
+\pagefloatnumber=\count278
+\sizeoffloat=\box70
+\bogus=\count279
+\figinsert=\insert252
+\herebox=\box71
+\endfigbox=\box72
+\spanbox=\box73
+\dbltopins=\box74
+\dblbotins=\box75
+\dblbotskip=\skip58
+\dblfigandtabnumber=\count280
+\dblfigandtabbox=\box76
+\dblloopnum=\count281
+\savedblfigandtabnumber=\count282
+\dblspanherebox=\box77
+\bigpagenum=\count283
+\littlepagenum=\count284
+\wholepagenum=\count285
+\@cprtype=\count286
+\@slugcmmntwidth=\dimen171
+\affilnum=\count287
+\totalaffils=\count288
+\figcount=\count289
+\saveequation=\count290
+\c@currlett=\count291
+\notationwidth=\dimen172
+\betweennotationskip=\skip59
+\WidestEntry=\dimen173
+\premulticols=\dimen174
+\page@free=\dimen175
+\partial@page=\box78
+\multicoltolerance=\count292
+\doublecol@number=\count293
+\multicolbaselineskip=\skip60
+\c@collectmore=\count294
+\loopcount=\count295
+\fixdimen=\dimen176
+\c@unbalance=\count296
+\savedimen=\dimen177
+\savehsize=\dimen178
+\mycolumnwidth=\dimen179
+\saveparindent=\dimen180
+\saveparskip=\dimen181
+\abstractwidth=\dimen182
+\currlastnumber=\count297
+\altaffilbox=\box79
+\sectskip=\skip61
+\belowsectionskip=\skip62
+\subsectskip=\skip63
+\belowsubsectskip=\skip64
+\subsubsectskip=\skip65
+\belowsubsubsectskip=\skip66
+\c@subsubsubsection=\count298
+\captionwidth=\dimen183
+\widecaptionwidth=\dimen184
+\landscapecaptionwidth=\dimen185
+\@temptokenb=\toks16
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/apacite\apacite.sty
+Package: apacite 2013/07/21 v6.03 APA citation
+\c@BibCnt=\count299
+\bibleftmargin=\skip67
+\bibindent=\skip68
+\bibparsep=\skip69
+\bibitemsep=\skip70
+\biblabelsep=\skip71
+)
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
+\Urlmuskip=\muskip16
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+\beforeendskip=\skip72
+
+
+
+ WRR class option, October 1, 2001,
+ \documentclass[wrr]{AGUTeX}
+ ``Water Resources Research'', 
+ Published by American Geophysical Union
+
+
+\titlesize=\dimen186
+) (C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
+Package: graphicx 2020/12/05 v1.2c Enhanced LaTeX Graphics (DPC,SPQR)
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+\KV@toks@=\toks17
+)
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
+Package: graphics 2021/03/04 v1.4d Standard LaTeX Graphics (DPC,SPQR)
+
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty
+Package: trig 2016/01/03 v1.10 sin cos tan (DPC)
+)
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.c
+fg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 107.
+
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
+File: pdftex.def 2020/10/05 v1.2a Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen187
+\Gin@req@width=\dimen188
+) (C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/lineno\lineno.sty
+Package: lineno 2005/11/02 line numbers on paragraphs v4.41
+\linenopenalty=\count300
+\output=\toks18
+\linenoprevgraf=\count301
+\linenumbersep=\dimen189
+\linenumberwidth=\dimen190
+\c@linenumber=\count302
+\c@pagewiselinenumber=\count303
+\c@LN@truepage=\count304
+\c@internallinenumber=\count305
+\c@internallinenumbers=\count306
+\quotelinenumbersep=\dimen191
+\bframerule=\dimen192
+\bframesep=\dimen193
+\bframebox=\box80
+LaTeX Info: Redefining \\ on input line 3056.
+)
+(trackchanges.sty
+Package: trackchanges 2009/04/22 v0.7.0 TrackChanges file 
+
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/graphics\color.sty
+Package: color 2020/02/24 v1.2b Standard LaTeX Color (DPC)
+
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package color Info: Driver file: pdftex.def on input line 149.
+) (C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/base\ifthen.sty
+Package: ifthen 2020/11/24 v1.1c Standard LaTeX ifthen package (DPC)
+)
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/tools\calc.sty
+Package: calc 2017/05/25 v4.3 Infix arithmetic (KKT,FJ)
+\calc@Acount=\count307
+\calc@Bcount=\count308
+\calc@Adimen=\dimen194
+\calc@Bdimen=\dimen195
+\calc@Askip=\skip73
+\calc@Bskip=\skip74
+LaTeX Info: Redefining \setlength on input line 80.
+LaTeX Info: Redefining \addtolength on input line 81.
+\calc@Ccount=\count309
+\calc@Cskip=\skip75
+)
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/generic/soul\soul.sty
+Package: soul 2003/11/17 v2.4 letterspacing/underlining (mf)
+\SOUL@word=\toks19
+\SOUL@lasttoken=\toks20
+\SOUL@cmds=\toks21
+\SOUL@buffer=\toks22
+\SOUL@token=\toks23
+\SOUL@spaceskip=\skip76
+\SOUL@ttwidth=\dimen196
+\SOUL@uldp=\dimen197
+\SOUL@ulht=\dimen198
+)
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/morefloats\morefloats.s
+ty
+Package: morefloats 2015/07/22 v1.0h Raise limit of unprocessed floats (HMM)
+
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty
+Package: kvoptions 2020-10-07 v3.14 Key value format for package options (HO)
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty
+Package: ltxcmds 2020-05-10 v1.25 LaTeX kernel commands for general use (HO)
+)
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/generic/kvsetkeys\kvsetkeys.s
+ty
+Package: kvsetkeys 2019/12/15 v1.18 Key value parser (HO)
+))
+Package morefloats Info: Maximum number of possible floats asked for: 36
+(morefloats)             (i.e. 18 more floats).
+(morefloats)             LaTeX might run out of memory before this
+(morefloats)             (in which case it will notify you).
+)
+\c@userid=\count310
+\c@changenumber=\count311
+\c@storefootnote=\count312
+\c@numeditors=\count313
+\c@maxeditors=\count314
+) (C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/tools\bm.sty
+Package: bm 2021/04/25 v1.2e Bold Symbol Support (DPC/FMi)
+\symboldoperators=\mathgroup4
+\symboldletters=\mathgroup5
+\symboldsymbols=\mathgroup6
+Package bm Info: No bold for \OMX/cmex/m/n, using \pmb.
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 149.
+)
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty
+Package: array 2021/04/20 v2.5e Tabular extension package (FMi)
+\col@sep=\dimen199
+\ar@mcellbox=\box81
+\extrarowheight=\dimen256
+\NC@list=\toks24
+\extratabsurround=\skip77
+\backup@length=\skip78
+\ar@cellbox=\box82
+)
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdf
+tex.def
+File: l3backend-pdftex.def 2021-05-07 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count315
+\l__pdf_internal_box=\box83
+) (si_Colombo.aux)
+\openout1 = `si_Colombo.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 123.
+LaTeX Font Info:    ... okay on input line 123.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 123.
+LaTeX Font Info:    ... okay on input line 123.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 123.
+LaTeX Font Info:    ... okay on input line 123.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 123.
+LaTeX Font Info:    ... okay on input line 123.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 123.
+LaTeX Font Info:    ... okay on input line 123.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 123.
+LaTeX Font Info:    ... okay on input line 123.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 123.
+LaTeX Font Info:    ... okay on input line 123.
+\c@maskedRefs=\count316
+
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/apacite\english.apc
+File: english.apc 2013/07/21 v6.03 apacite language file
+LaTeX Info: Redefining \BPBI on input line 129.
+LaTeX Info: Redefining \BHBI on input line 130.
+)
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mk
+ii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count317
+\scratchdimen=\dimen257
+\scratchbox=\box84
+\nofMPsegments=\count318
+\nofMParguments=\count319
+\everyMPshowfont=\toks25
+\MPscratchCnt=\count320
+\MPscratchDim=\dimen258
+\MPnumerator=\count321
+\makeMPintoPDFobject=\count322
+\everyMPtoPDFconversion=\toks26
+)
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-b
+ase.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+
+(C:\Users\paolo\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.c
+fg
+File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
+))
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 141.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 141.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 141.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 143.
+ [1{C:/Users/paolo/AppData/Local/MiKTeX/pdftex/config/pdftex.map}
+
+]
+(si_Colombo.aux) ) 
+Here is how much of TeX's memory you used:
+ 3712 strings out of 478864
+ 52981 string characters out of 2848660
+ 376849 words of memory out of 3000000
+ 21605 multiletter control sequences out of 15000+600000
+ 416451 words of font info for 70 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 70i,8n,80p,486b,606s stack positions out of 5000i,500n,10000p,200000b,80000s
+<C:/Users/paolo/AppData/Local/Programs/MiKTeX/fonts/type1/pub
+lic/amsfonts/cm/cmbx12.pfb><C:/Users/paolo/AppData/Local/Programs/MiKTeX/fonts/
+type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/paolo/AppData/Local/Programs/MiKTe
+X/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/paolo/AppData/Local/Progra
+ms/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/paolo/AppData/Loca
+l/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Users/paolo/AppDa
+ta/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/paol
+o/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on si_Colombo.pdf (1 page, 85544 bytes).
+PDF statistics:
+ 41 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+
