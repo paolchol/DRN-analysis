@@ -28,4 +28,4 @@ Paolo Colombo: https://orcid.org/0000-0003-1343-0520 \
 Germano G. Ribeiro Neto: https://orcid.org/0000-0002-0823-0885 \
 Pieter R. Van Oel: https://orcid.org/0000-0001-7740-0537 \
 Alexandre C. Costa: https://orcid.org/0000-0002-4771-1382 \
-George L. Mamede: https://orcid.org/0000-0002-5988-6948 \
+George L. Mamede: https://orcid.org/0000-0002-5988-6948
