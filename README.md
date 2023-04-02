@@ -1,4 +1,4 @@
-# Repository in support of "*The influence of small reservoirs on hydrological drought propagation in space and time*"
+# Repository in support of "*Modeling the influence of small reservoirs on hydrological drought propagation in space and time*"
 
 **Repository name**: DRN-analysis. DRN stands for Dense Reservoir Network.
 **Repository description**: Data, model, R scripts and markdowns used to obtain the results contained in the article "*The influence of small reservoirs on hydrological drought propagation in space and time*".
@@ -21,7 +21,6 @@ Human impacts have been found in a broad spectrum of environmental processes and
 
 ## Useful links
 Master's thesis available at: http://hdl.handle.net/10589/181779 \
-Pre-print available at: https://doi.org/10.1002/essoar.10512771.1
 
 ## Authors ORCID
 Paolo Colombo: https://orcid.org/0000-0003-1343-0520 \
