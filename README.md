@@ -1,8 +1,7 @@
 # Repository in support of "*Modeling the influence of small reservoirs on hydrological drought propagation in space and time*"
 
-**Repository name**: DRN-analysis. DRN stands for Dense Reservoir Network.
-**Repository description**: Data, model, R scripts and markdowns used to obtain the results contained in the article "*The influence of small reservoirs on hydrological drought propagation in space and time*".
-The repository also contains the operations and drafts needed to pursue my Master's thesis of the title "*Analysis of the influence of a dense network of small reservoirs on drought evolution*".\
+**Repository name**: DRN-analysis. DRN stands for Dense Reservoir Network.\
+**Repository description**: Data, model, R scripts and markdowns used to obtain the results contained in the article "*Modeling the influence of small reservoirs on hydrological drought propagation in space and time*". The repository also contains the operations and drafts needed to pursue Paolo Colombo's Master thesis of the title "*Analysis of the influence of a dense network of small reservoirs on drought evolution*".\
 **Author**: Paolo Colombo\
 **Co-Authors**: Germano G. Ribeiro Neto, Alexandre Cunha Costa, George Mamede, Pieter Van Oel
 
@@ -20,7 +19,7 @@ The repository is organized in different folders:
 Human impacts have been found in a broad spectrum of environmental processes and phenomena. Droughts make no exception. Droughts, as periods of exceptional lack of water, are one of the disasters that produce the most intense environmental and socio-economic impacts. One of the most common strategies for reducing drought-related impacts is the construction of small reservoirs to store water. This practice can generate a false sense of water security and increase water demand, which in turn results in more reservoirs being constructed. When the presence of these reservoirs becomes diffused and in high numbers, it may enhance the persistence of droughts, making them longer and more intense. Since these effects are still unclear, we modeled multiple scenarios representing a North-East Brazilian river basin with and without small reservoirs. Through two methods (the Drought Cycle Analysis and the Downstreamness analysis), these scenarios were analyzed to assess the reservoirs’ effects in time and space. We found that in the region drought events last on average 12% longer due to the small reservoirs’ presence. This is linked to the accelerated transition from meteorological to hydrological drought (+20%) and the slowdown of the large reservoirs’ recovery from a drought condition (25%). We found that the overall storage distribution is shifted upstream by 8% on average, but when both large and small reservoirs are present the stored volume distribution behavior is not straightforward. The findings confirm the need to consider small reservoirs when addressing drought management policies.
 
 ## Useful links
-Master's thesis available at: http://hdl.handle.net/10589/181779 \
+Master's thesis available at: http://hdl.handle.net/10589/181779
 
 ## Authors ORCID
 Paolo Colombo: https://orcid.org/0000-0003-1343-0520 \
