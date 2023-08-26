@@ -16,11 +16,11 @@ editor_options:
 Set the working directory and load general libraries and custom functions.
 
 ```{r, setwd, include = FALSE}
-knitr::opts_knit$set(root.dir = "C:/Directory_thesis_codes")
+knitr::opts_knit$set(root.dir = "C:/DRN-analysis")
 ```
 
 ```{r, setup, include = FALSE}
-setwd("C:/Directory_thesis_codes")
+setwd("C:/DRN-analysis")
 source("./R/Libraries/Libraries.R")
 source("./R/Libraries/Libraries_plot.R")
 source("./R/Libraries/Functions.R")
@@ -31,11 +31,11 @@ source("./R/Libraries/Functions_MC.R")
 
 ## Figure 1
 
-Map of the study area localization on the left. Centralized reservoirs visualization and density representation of the DRN on the right. Made in QGIS utilizing the shapefiles and rasters found in ./Data/DNR and ./Data/Shapefile. The density visualization was made with the QGIS “Density Analysis” plugin. The field NUMPOINTs was then divided by the area of each cell ($25 \hspace{0.1cm} km^2$) to obtain the density ($n°small\hspace{0.1cm}reservoirs/km^2$). The equation used in the new field was: "NUMPOINTS"/($area/1000000) ![Study area framing. North-East Brazil, Ceará and Banabuiú catchment on the left. On the right, centralized reservoirs location and storage capacity, overlayed to DRN's density in the Banabuiú basin.](C:/Directory_thesis_codes/Figures%20and%20tables/paper/Figure_1.png)
+Map of the study area localization on the left. Centralized reservoirs visualization and density representation of the DRN on the right. Made in QGIS utilizing the shapefiles and rasters found in ./Data/DNR and ./Data/Shapefile. The density visualization was made with the QGIS “Density Analysis” plugin. The field NUMPOINTs was then divided by the area of each cell ($25 \hspace{0.1cm} km^2$) to obtain the density ($n°small\hspace{0.1cm}reservoirs/km^2$). The equation used in the new field was: "NUMPOINTS"/($area/1000000) ![Study area framing. North-East Brazil, Ceará and Banabuiú catchment on the left. On the right, centralized reservoirs location and storage capacity, overlayed to DRN's density in the Banabuiú basin.](C:/DRN-analysis/Figures and tables/paper/Figure_1.png)
 
 ## Figure 2
 
-![Graphical representation of the Drought Cycle Analysis, from Ribeiro Neto et al. (2022). WSI: Water Scarcity Index, PI: Precipitation Index.](C:/Directory_thesis_codes/Figures%20and%20tables/paper/Figure%202.jpg){width="682"}
+![Graphical representation of the Drought Cycle Analysis, from Ribeiro Neto et al. (2022). WSI: Water Scarcity Index, PI: Precipitation Index.](C:/DRN-analysis/Figures and tables/paper/Figure_2.jpg){width="682"}
 
 ## Figure 4
 
@@ -44,7 +44,7 @@ Map of the study area localization on the left. Centralized reservoirs visualiza
 SPI-12 visualization. a.) 6-months moving average of the SPI-12 computed on the basin’s average precipitation and variability spectrum across the sub-basins. Spatial distribution of  SPI-12 in Banabuiu watershed sub-basins averaged for b.) 1992-1993 drought and c.) 2012-2018 drought.
 
 ```{r figure 5a}
-setwd("C:/Directory_thesis_codes")
+setwd("C:/DRN-analysis")
 
 #Custom functions
 #Moving average
@@ -94,13 +94,13 @@ p <- ggplot() +
   geom_line(data = df, aes(x = date, y = ma, colour = "Mean precipitation"), size = 1.25) +
   #Add the drought indicator lines
   geom_hline(yintercept = 0, color = 'lightblue', linetype = "dashed", size = 1.25, alpha = 0.8) +
-  geom_text(aes(as.Date("1985-01-01"), 0, label = "Normal", vjust = -0.5, hjust = 0), size = 6) +
+  geom_text(aes(as.Date("1985-01-01"), 0, label = "Normal", vjust = -0.5, hjust = 0), size = 8) +
   geom_hline(yintercept = -1, color = 'yellow', linetype = "dashed", size = 1.25, alpha = 0.8) +
-  geom_text(aes(as.Date("1985-01-01"), -1, label = "Moderately dry", vjust = -0.5, hjust = 0), size = 6) +
+  geom_text(aes(as.Date("1985-01-01"), -1, label = "Moderately dry", vjust = -0.5, hjust = 0), size = 8) +
   geom_hline(yintercept = -1.5, color = 'orange', linetype = "dashed", size = 1.25, alpha = 0.8) +
-  geom_text(aes(as.Date("1985-01-01"), -1.5, label = "Severely dry", vjust = -0.5, hjust = 0), size = 6) +
+  geom_text(aes(as.Date("1985-01-01"), -1.5, label = "Severely dry", vjust = -0.5, hjust = 0), size = 8) +
   geom_hline(yintercept = -2, color = 'red', linetype = "dashed", size = 1.25, alpha = 0.8) +
-  geom_text(aes(as.Date("1985-01-01"), -2, label = "Extremely dry", vjust = -0.5, hjust = 0), size = 6) +
+  geom_text(aes(as.Date("1985-01-01"), -2, label = "Extremely dry", vjust = -0.5, hjust = 0), size = 8) +
   #Modify the axis
   scale_y_continuous(name = 'SPI-12', limits = c(-4, 4), breaks = seq(-4, 4, 1)) +
   scale_x_date(name = 'Date', date_breaks = "2 years", date_labels = '%Y', limits = as.Date(c("1980-01-01", "2018-12-01")), expand = c(0,0)) +
@@ -108,18 +108,19 @@ p <- ggplot() +
   scale_color_manual(name = "", values = col) +
   scale_fill_manual(name = "", values = col) +
   theme(
-        axis.text.x = element_text(size = 16),
-        axis.text.y = element_text(size = 20),
-        axis.title = element_text(size = 22),
-        legend.title = element_text(size = 20),
-        legend.text = element_text(size = 18),
+        axis.text.x = element_text(size = 22),
+        axis.text.y = element_text(size = 22),
+        axis.title.y = element_text(size = 24, face = "bold"),
+        axis.title.x = element_blank(),
+        legend.title = element_blank(),
+        legend.text = element_text(size = 22),
         legend.position = "bottom",
         panel.background = element_rect(fill = "white", colour = "grey50")
         )
 
 print(p)
 
-plot.save(p, width = 1920, height = 1080, filename = "./Figures and tables/paper/Figure_5.png")
+plot.save(p, width = 1920, height = 1080, filename = "./Figures and tables/paper/Figure_5_new.png")
 ```
 
 ```{r figure 5b}

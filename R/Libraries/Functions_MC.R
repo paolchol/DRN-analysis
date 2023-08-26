@@ -1,7 +1,7 @@
 #Functions for Model calibration
 
 #Other functions needed
-setwd("C:/Directory_thesis_codes")
+setwd("C:/DRN-analysis")
 source("./R/Libraries/Functions_TG.R")
 
 # Dataframe operations -----------------------------------------------------
