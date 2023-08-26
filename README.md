@@ -1,10 +1,9 @@
-# Repository in support of "*The influence of small reservoirs on hydrological drought propagation in space and time*"
+# Repository in support of "*Modeling the influence of small reservoirs on hydrological drought propagation in space and time*"
 
-**Repository name**: DRN-analysis. DRN stands for Dense Reservoir Network.
-**Repository description**: Data, model, R scripts and markdowns used to obtain the results contained in the article "*The influence of small reservoirs on hydrological drought propagation in space and time*".
-The repository also contains the operations and drafts needed to pursue my Master's thesis of the title "*Analysis of the influence of a dense network of small reservoirs on drought evolution*".
-**Author**: Paolo Colombo
-**Co-Authors**: Germano G. Ribeiro Neto, Pieter Van Oel, Alexandre Cunha Costa, George Mamede
+**Repository name**: DRN-analysis. DRN stands for Dense Reservoir Network.\
+**Repository description**: Data, model, R scripts and markdowns used to obtain the results contained in the article "*Modeling the influence of small reservoirs on hydrological drought propagation in space and time*". The repository also contains the operations and drafts needed to pursue Paolo Colombo's Master thesis of the title "*Analysis of the influence of a dense network of small reservoirs on drought evolution*".\
+**Author**: Paolo Colombo\
+**Co-Authors**: Germano G. Ribeiro Neto, Alexandre Cunha Costa, George Mamede, Pieter Van Oel
 
 ## Repository organization
 The repository is organized in different folders:
@@ -21,4 +20,10 @@ Human impacts have been found in a broad spectrum of environmental processes and
 
 ## Useful links
 Master's thesis available at: http://hdl.handle.net/10589/181779
-### Authors ORCID
+
+## Authors ORCID
+Paolo Colombo: https://orcid.org/0000-0003-1343-0520 \
+Germano G. Ribeiro Neto: https://orcid.org/0000-0002-0823-0885 \
+Pieter R. Van Oel: https://orcid.org/0000-0001-7740-0537 \
+Alexandre C. Costa: https://orcid.org/0000-0002-4771-1382 \
+George L. Mamede: https://orcid.org/0000-0002-5988-6948
