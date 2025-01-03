@@ -4,6 +4,7 @@
 **Repository description**: Data, model, R scripts and markdowns used to obtain the results contained in the article "*Modeling the influence of small reservoirs on hydrological drought propagation in space and time*". The repository also contains the operations and drafts needed to pursue Paolo Colombo's Master thesis of the title "*Analysis of the influence of a dense network of small reservoirs on drought evolution*".\
 **Author**: Paolo Colombo\
 **Co-Authors**: Germano G. Ribeiro Neto, Alexandre Cunha Costa, George Mamede, Pieter Van Oel
+**DOI**: https://doi.org/10.1016/j.jhydrol.2024.130640
 
 ## Repository organization
 The repository is organized in different folders:
